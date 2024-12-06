@@ -1,0 +1,66 @@
+{
+    "nixpkgs.nodejs": {
+      "version": "20.11.1",
+      "description": "Event-driven I/O framework for the V8 JavaScript engine",
+      "homepage": "https://nodejs.org",
+      "license": "MIT",
+      "pname": "nodejs",
+      "type": "package"
+    },
+    "nixpkgs.python314": {
+      "version": "3.14.0a2",
+      "description": "A high-level dynamically-typed programming language",
+      "homepage": "https://www.python.org",
+      "license": "Python-2.0",
+      "pname": "python314",
+      "type": "package"
+    },
+    "nixpkgs.python313": {
+      "version": "3.13.0",
+      "description": "A high-level dynamically-typed programming language",
+      "homepage": "https://www.python.org",
+      "license": "Python-2.0",
+      "pname": "python313",
+      "type": "package"
+    },
+    "nixpkgs.git": {
+      "version": "2.43.0",
+      "description": "Distributed version control system",
+      "homepage": "https://git-scm.com/",
+      "license": "GPL-2.0-only",
+      "pname": "git",
+      "type": "package"
+    },
+    "nixpkgs.vscode": {
+      "version": "1.87.0",
+      "description": "Open source source code editor developed by Microsoft",
+      "homepage": "https://code.visualstudio.com/",
+      "license": "MIT",
+      "pname": "vscode",
+      "type": "package"
+    },
+    "nixpkgs.docker": {
+      "version": "25.0.3",
+      "description": "Container runtime and orchestration engine",
+      "homepage": "https://www.docker.com/",
+      "license": "Apache-2.0",
+      "pname": "docker",
+      "type": "package"
+    },
+    "nixpkgs.rust": {
+      "version": "1.75.0",
+      "description": "A safe, concurrent, practical language",
+      "homepage": "https://www.rust-lang.org/",
+      "license": "MIT",
+      "pname": "rust",
+      "type": "package"
+    },
+    "nixpkgs.go": {
+      "version": "1.22.0",
+      "description": "The Go Programming language",
+      "homepage": "https://go.dev/",
+      "license": "BSD-3-Clause",
+      "pname": "go",
+      "type": "package"
+    }
+  }
