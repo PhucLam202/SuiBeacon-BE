@@ -100,7 +100,8 @@
   },
   "include": [
     "src/**/*"
-, "jest.config.js"  ],
+    // "jest.config.js"
+  ],
   "exclude": [
     "node_modules",
     "**/*.spec.ts"
