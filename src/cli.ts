@@ -3,9 +3,9 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import ora, { Ora } from 'ora';
 import installPackage from './command/install.js';
-import listInstalledPackages from './command/installed.js';
+import listPackages from './command/list.js';
 import removePackage from './command/remove.js';
-import listAvailablePackages from './command/list.js';
+import searchAvailablePackages from './command/search.js';
 import updatePackage from './command/update.js';
 
 
@@ -30,16 +30,16 @@ program
         console.log(chalk.green('Package installed successfully'));
     });
 
-// Lệnh installed
+// Lệnh list package installed
 program
-    .command('installed')
+    .command('list')
     .description('List all installed packages')
     .action(() => {
         console.log(chalk.inverse('Fetching installed packages...'));
-        listInstalledPackages();
+        listPackages();
     });
 
-// Lệnh uninstall
+// Lệnh remove package
 program
     .command('remove <package>')
     .description('remove a package')
@@ -48,16 +48,16 @@ program
         removePackage(pkg);
     });
 
-// Lệnh list
+// Lệnh search
 program
-    .command('list [search]')
-    .description('List available packages from nixpkgs')
+    .command('search [search]')
+    .description('Search available packages')
     .action((search?: string) => {
         const spinner = ora({
             text: chalk.blue('Searching for packages...'),
             spinner: 'dots'
         }).start();
-        listAvailablePackages(search, spinner);
+        searchAvailablePackages(search, spinner);
     });
 
 program

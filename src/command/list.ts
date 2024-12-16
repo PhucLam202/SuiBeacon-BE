@@ -1,85 +1,37 @@
 import boxen from "boxen";
 import chalk from "chalk";
 import { exec } from "child_process";
-import { Ora } from "ora";
-import fs from "fs";
+import ora from "ora";
 
-const CACHE_FILE = "packages-cache.json";
+async function listPackages() {
+    const spinner = ora({
+        text: chalk.blue('Fetching installed packages...'),
+        spinner: 'dots'
+    }).start();
 
-async function listAvailablePackages(search?: string, spinner?: Ora) {
-    try {
-        // Kiểm tra xem file cache có tồn tại không
-        const cacheExists = await fs.promises.access(CACHE_FILE)
-            .then(() => true)
-            .catch(() => false);
-
-        // Nếu không có cache hoặc force update, tạo cache mới
-        if (!cacheExists) {
-            spinner?.start(chalk.blue('Creating packages cache...'));
-            const command = `nix search nixpkgs --json`;
-            await new Promise((resolve, reject) => {
-                exec(command, async (error, stdout, stderr) => {
-                    if (error) {
-                        reject(new Error(stderr));
-                        return;
-                    }
-                    await fs.promises.writeFile(CACHE_FILE, stdout);
-                    resolve(stdout);
-                });
-            });
-        }
-
-        // Đọc từ cache
-        const cacheContent = await fs.promises.readFile(CACHE_FILE, 'utf8');
-        const packages = JSON.parse(cacheContent);
-
-        // Lọc packages theo từ khóa tìm kiếm
-        const filteredPackages = Object.entries(packages)
-            .filter(([pkgPath, info]: [string, any]) => {
-                const name = pkgPath.split('.').pop()?.toLowerCase() || '';
-                const description = (info.description || '').toLowerCase();
-                const searchTerm = (search || '').toLowerCase();
-                
-                return !search || 
-                    name.includes(searchTerm) || 
-                    description.includes(searchTerm);
-            })
-            .slice(0, 20); // Giới hạn 20 kết quả
-
-        spinner?.succeed(chalk.green('✅ Packages found:'));
-
-        if (filteredPackages.length === 0) {
-            console.log(chalk.yellow('No packages found.'));
+    const command = `nix-env -q --description`;
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            spinner.fail(chalk.red(`❌ Error fetching installed packages: ${stderr}`));
             return;
         }
-
-        // Hiển thị kết quả
-        const formattedResults = filteredPackages.map(([pkgPath, info]: [string, any]) => {
-            const name = pkgPath.split('.').pop();
-            return chalk.green(`${name} `) + 
-                   chalk.blue(`v${info.version}`)
-        }).join('\n');
-
-        console.log(
-            boxen(
-                `Available packages:\n\n${formattedResults}`,
-                {
-                    padding: 1,
-                    margin: 1,
-                    borderStyle: 'round',
-                    borderColor: 'green'
-                }
-            )
-        );
-
-        if (filteredPackages.length === 20) {
-            console.log(chalk.yellow('\nShowing first 20 results. Use specific search terms to filter results.'));
+        spinner.succeed();
+        if (stdout.trim() === '') {
+            console.log(chalk.yellow('No packages installed.'));
+        } else {
+            console.log(
+                boxen(
+                    chalk.green(`Installed packages:\n${stdout}`),
+                    {
+                        padding: 1,
+                        margin: 1,
+                        borderStyle: 'round',
+                        borderColor: 'green'
+                    }
+                )
+            );
         }
-
-    } catch (err: any) {
-        spinner?.fail(chalk.red(`❌ Error: ${err.message}`));
-        console.error(err);
-    }
+    });
 }
 
-export default listAvailablePackages;               
+export default listPackages;
