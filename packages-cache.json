@@ -62,5 +62,45 @@
       "license": "BSD-3-Clause",
       "pname": "go",
       "type": "package"
+    },
+    "nixpkgs.llvm": {
+        "version": "12.0.0",
+        "description": "The LLVM Compiler Infrastructure",
+        "homepage": "https://llvm.org/",
+        "license": "NCSA",
+        "pname": "llvm",
+        "type": "package"
+    },
+    "nixpkgs.clang": {
+        "version": "12.0.0",
+        "description": "C language family frontend for LLVM",
+        "homepage": "https://clang.llvm.org/",
+        "license": "NCSA",
+        "pname": "clang",
+        "type": "package"
+    },
+    "nixpkgs.cmake": {
+        "version": "3.21.0",
+        "description": "CMake is a family of tools designed to build, test and package software",
+        "homepage": "https://cmake.org/",
+        "license": "BSD-3-Clause",
+        "pname": "cmake",
+        "type": "package"
+    },
+    "nixpkgs.openssl": {
+        "version": "1.1.1k",
+        "description": "OpenSSL is a robust, commercial-grade, full-featured toolkit for general-purpose cryptography and SSL/TLS",
+        "homepage": "https://www.openssl.org/",
+        "license": "OpenSSL",
+        "pname": "openssl",
+        "type": "package"
+    },
+    "nixpkgs.wasm-pack": {
+        "version": "0.10.2",
+        "description": "A tool for building Rust-generated WebAssembly packages",
+        "homepage": "https://rustwasm.github.io/wasm-pack/",
+        "license": "MIT",
+        "pname": "wasm-pack",
+        "type": "package"
     }
   }
