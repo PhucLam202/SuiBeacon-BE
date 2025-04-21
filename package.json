@@ -1,10 +1,10 @@
 {
-  "name": "drop",
+  "name": "suibeacon",
   "version": "1.0.0",
   "description": "A basic CLI tool for downloading files",
   "main": "dist/cli.js",
   "bin": {
-    "drop": "./dist/cli.js"
+    "beacon": "./dist/cli.js"
   },
   
   "type": "module",

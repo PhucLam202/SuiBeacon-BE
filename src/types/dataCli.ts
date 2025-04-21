@@ -1,11 +1,10 @@
 // Thêm interface định nghĩa kiểu dữ liệu cho package
 interface PackageInfo {
+    name: string;
+    pname: string;
     version: string;
     description: string;
-    homepage?: string;
-    license: string;
-    pname: string;
-    type: string;
+    license: string; 
+    type: string;  
 }
-
 export default PackageInfo;

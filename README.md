@@ -1,14 +1,14 @@
-# Drop 🚀
+# beacon 🚀
 
 <div align="center">
 
-![Drop CLI](https://your-banner-image-url.png)
+![beacon CLI](https://your-banner-image-url.png)
 
 A powerful CLI tool powered by Nix for seamless package management.
 
-<!-- [![Version](https://img.shields.io/npm/v/drop)](https://npmjs.org/package/drop)
-[![Downloads/week](https://img.shields.io/npm/dw/drop)](https://npmjs.org/package/drop)
-[![License](https://img.shields.io/npm/l/drop)](https://github.com/yourusername/drop/blob/master/package.json) -->
+<!-- [![Version](https://img.shields.io/npm/v/beacon)](https://npmjs.org/package/beacon)
+[![Downloads/week](https://img.shields.io/npm/dw/beacon)](https://npmjs.org/package/beacon)
+[![License](https://img.shields.io/npm/l/beacon)](https://github.com/yourusername/beacon/blob/master/package.json) -->
 
 </div>
 
@@ -34,10 +34,10 @@ Before you begin, ensure you have the following installed:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/drop.git
+git clone https://github.com/yourusername/beacon.git
 
 # Navigate to project directory
-cd drop
+cd beacon
 
 # Install dependencies
 pnpm install
@@ -55,42 +55,42 @@ pnpm link --global
 
 ```bash
 # View all available commands
-drop --help
+beacon --help
 
 # Check CLI version
-drop --version
+beacon --version
 ```
 
 ### Package Management
 
 ```bash
 # List all available packages
-drop list
+beacon list
 
 # Search for specific packages
-drop list python
+beacon list python
 
 # Install a package with specific version
-drop install python313 3.13.0
+beacon install python313 3.13.0
 
 # View installed packages
-drop installed
+beacon installed
 
 # Remove a package
-drop remove python313
+beacon remove python313
 ```
 
 ### Development Shell
 
 ```bash
 # Start a development shell
-drop devVM
+beacon devVM
 ```
 
 ## 🏗️ Project Structure
 
 ```
-drop/
+beacon/
 ├── dist/           # Compiled JavaScript code
 ├── src/            # TypeScript source files
 │   ├── cli.ts      # Main CLI implementation
@@ -128,7 +128,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
    ```bash
    # Try updating the package cache
    rm packages-cache.json
-   drop list
+   beacon list
    ```
 
 2. **Installation Fails**
@@ -138,7 +138,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📮 Support
 
-- Report bugs by creating an [issue](https://github.com/yourusername/drop/issues)
+- Report bugs by creating an [issue](https://github.com/yourusername/beacon/issues)
 - Join our [Discord community](https://discord.gg/your-invite)
 - Follow updates on [Twitter](https://twitter.com/your-handle)
 
