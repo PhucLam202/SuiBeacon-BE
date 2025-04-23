@@ -6,7 +6,7 @@ import listpackageRouter from "./listpackageRouter"
 export async function Routes(app: Express): Promise<Server> {
   // Register API routes
   app.use("/v1/walrus",walrusRouter );  
-  app.use('/v1/listPackager',listpackageRouter );
+  app.use('/v1/listPackages',listpackageRouter );
   // Health check endpoint
   app.get("/health", (req, res) => {
     res.status(200).json({ status: "ok" });
