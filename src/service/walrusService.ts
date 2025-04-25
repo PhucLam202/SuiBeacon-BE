@@ -13,15 +13,15 @@ class WalrusService {
     this.suiClient = new SuiClient({ url: getFullnodeUrl("mainnet") });
     this.walrusClient = new WalrusClient({
       network: "mainnet",
-      suiClient: this.suiClient,
+      // Cast the SuiClient to any to bypass the type checking
+      suiClient: this.suiClient as any,
     });
-    //dán env vô đây 
-    const mnemonic = ""
-    //const mnemonic= process.env.SUI_MNEMONIC;
+    //dán env vô đây
+    const mnemonic = process.env.SUI_MNEMONIC;
     if (!mnemonic) {
       throw new Error("SUI_MNEMONIC environment variable is not defined");
     }
-    this.keypair = Ed25519Keypair.deriveKeypair(mnemonic  as string);
+    this.keypair = Ed25519Keypair.deriveKeypair(mnemonic as string);
     console.log("Using address:", this.keypair.toSuiAddress());
   }
 
@@ -42,18 +42,18 @@ class WalrusService {
       } else {
         fileData = new TextEncoder().encode("Hello from the walrus SDK!!!\n");
       }
-      
+
       // Chuẩn bị attributes với contentType và contentLength
       const attributes: Record<string, string> = {
         contentType: "text/plain",
         contentLength: fileData.length.toString(),
       };
-      
+
       // Thêm description vào attributes nếu có
       if (description) {
         attributes.description = description;
       }
-      
+
       const { blobId } = await this.walrusClient.writeBlob({
         blob: fileData,
         deletable: false,
@@ -61,10 +61,13 @@ class WalrusService {
         signer: this.keypair,
         attributes: attributes,
       });
-      
+
       return blobId;
     } catch (error: any) {
-      throw AppError.newError500(ErrorCode.WALRUS_UPLOAD_FAILED, "WALRUS_UPLOAD_FAILED " + (error as Error).message);
+      throw AppError.newError500(
+        ErrorCode.WALRUS_UPLOAD_FAILED,
+        "WALRUS_UPLOAD_FAILED " + (error as Error).message
+      );
     }
   }
 
@@ -73,7 +76,10 @@ class WalrusService {
       const blob = await this.walrusClient.readBlob({ blobId });
       return blob;
     } catch (error: any) {
-      throw AppError.newError500(ErrorCode.WALRUS_BLOB_NOT_FOUND, "WALRUS_BLOB_NOT_FOUND " + (error as Error).message);
+      throw AppError.newError500(
+        ErrorCode.WALRUS_BLOB_NOT_FOUND,
+        "WALRUS_BLOB_NOT_FOUND " + (error as Error).message
+      );
     }
   }
 
@@ -85,7 +91,10 @@ class WalrusService {
       const blob = await this.ReadBlod(blobId);
       return Buffer.from(blob).toString(encoding);
     } catch (error: any) {
-      throw AppError.newError500(ErrorCode.FILE_DOWNLOAD_ERROR, "FILE_DOWNLOAD_ERROR " + (error as Error).message);
+      throw AppError.newError500(
+        ErrorCode.FILE_DOWNLOAD_ERROR,
+        "FILE_DOWNLOAD_ERROR " + (error as Error).message
+      );
     }
   }
 
@@ -125,7 +134,10 @@ class WalrusService {
         walBalance: walTotal.toString(),
       };
     } catch (error: any) {
-      throw AppError.newError500(ErrorCode.WALRUS_BALANCE_CHECK_FAILED, "WALRUS_BALANCE_CHECK_FAILED " + (error as Error).message);
+      throw AppError.newError500(
+        ErrorCode.WALRUS_BALANCE_CHECK_FAILED,
+        "WALRUS_BALANCE_CHECK_FAILED " + (error as Error).message
+      );
     }
   }
 }

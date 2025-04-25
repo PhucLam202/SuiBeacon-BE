@@ -27,7 +27,6 @@ A powerful CLI tool powered by Nix for seamless package management.
 
 Before you begin, ensure you have the following installed:
 - [Node.js](https://nodejs.org/) (v14 or higher)
-- [pnpm](https://pnpm.io/) (v6 or higher)
 - [Nix Package Manager](https://nixos.org/download.html)
 
 ### Installation
@@ -40,13 +39,13 @@ git clone https://github.com/yourusername/beacon.git
 cd beacon
 
 # Install dependencies
-pnpm install
+npm install
 
 # Build the project
-pnpm build
+npm build
 
 # Install CLI globally
-pnpm link --global
+npm link --global
 ```
 
 ## 📚 Usage Guide
@@ -104,7 +103,7 @@ beacon/
 ```bash
 
 # Build the project
-pnpm run build
+npm run build
 
 # Run directly after building
 node dist/cli.js
