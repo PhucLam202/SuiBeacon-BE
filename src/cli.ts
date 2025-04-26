@@ -10,6 +10,7 @@ import removePackage from "./command/remove.js";
 import searchAvailablePackages from "./command/search.js";
 import updatePackage from "./command/update.js";
 import boxen from "boxen";
+import pushPackageList from "./command/pushlist.js";
 
 const program = new Command();
 program
@@ -126,48 +127,55 @@ program
     }
   });
 
-// Lệnh push packages lên hub
+// Thêm lệnh pushlist mới (không yêu cầu wallet)
 program
-  .command("push")
-  .description("Push your packages to the hub")
-  .option("-w, --wallet <address>", "Your wallet address")
-  .action(async (options) => {
+  .command("pushlist")
+  .description("Push all installed packages to hub without requiring wallet")
+  .action(() => {
     const spinner = ora({
-      text: chalk.blue("Pushing packages to hub..."),
+      text: chalk.blue("Pushing package list to hub..."),
       spinner: "dots",
     }).start();
     
-    try {
-      if (!options.wallet) {
-        spinner.fail(chalk.red("Wallet address is required"));
-        console.log(chalk.yellow("Usage: beacon push --wallet <address>"));
-        return;
-      }
-      
-      const response = await fetch(`http://localhost:${process.env.PORT || 5000}/v1/userPackages/${options.wallet}/push`, {
-        method: 'POST'
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        spinner.fail(chalk.red(`Failed to push: ${data.message}`));
-        return;
-      }
-      
-      spinner.succeed(chalk.green("✅ Packages pushed to hub successfully"));
-      console.log(
-        boxen(`Pushed ${data.packages.length} packages to hub\nBlob ID: ${data.blobId}`, {
-          padding: 1,
-          margin: 1,
-          borderStyle: "round",
-          borderColor: "green",
-        })
-      );
-    } catch (err: any) {
-      spinner.fail(chalk.red(`❌ Error: ${err.message}`));
-    }
+    pushPackageList(spinner);
   });
+
+// Sửa lại lệnh push hiện tại
+// program
+//   .command("push")
+//   .description("Push your packages to the hub")
+//   .requiredOption("-w, --wallet <address>", "Your wallet address")
+//   .action(async (options) => {
+//     const spinner = ora({
+//       text: chalk.blue("Pushing packages to hub..."),
+//       spinner: "dots",
+//     }).start();
+    
+//     try {
+//       const response = await fetch(`http://localhost:${process.env.PORT || 5000}/v1/userPackages/${options.wallet}/push`, {
+//         method: 'POST'
+//       });
+      
+//       const data = await response.json();
+      
+//       if (!response.ok) {
+//         spinner.fail(chalk.red(`Failed to push: ${data.message}`));
+//         return;
+//       }
+      
+//       spinner.succeed(chalk.green("✅ Packages pushed to hub successfully"));
+//       console.log(
+//         boxen(`Pushed ${data.packages.length} packages to hub\nBlob ID: ${data.blobId}`, {
+//           padding: 1,
+//           margin: 1,
+//           borderStyle: "round",
+//           borderColor: "green",
+//         })
+//       );
+//     } catch (err: any) {
+//       spinner.fail(chalk.red(`❌ Error: ${err.message}`));
+//     }
+//   });
 
 // Chạy CLI
 program.parse(process.argv);

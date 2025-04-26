@@ -1,9 +1,11 @@
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
 import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 import { WalrusClient } from "@mysten/walrus";
-import { AppError } from "../middlewares/e/AppError";
-import { ErrorCode } from "../middlewares/e/ErrorCode";
+import { AppError } from "../middlewares/e/AppError.js";
+import { ErrorCode } from "../middlewares/e/ErrorCode.js";
+import dotenv from "dotenv";
 
+dotenv.config();
 class WalrusService {
   private suiClient: SuiClient;
   private walrusClient: WalrusClient;
@@ -18,11 +20,11 @@ class WalrusService {
     });
     //dán env vô đây
     const mnemonic = process.env.SUI_MNEMONIC;
+    const MnemonicStr = mnemonic as string ;
     if (!mnemonic) {
       throw new Error("SUI_MNEMONIC environment variable is not defined");
     }
-    this.keypair = Ed25519Keypair.deriveKeypair(mnemonic as string);
-    console.log("Using address:", this.keypair.toSuiAddress());
+    this.keypair = Ed25519Keypair.deriveKeypair(MnemonicStr);
   }
 
   async uploadBlob(data?: any, description?: string): Promise<string> {

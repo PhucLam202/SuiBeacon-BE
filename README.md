@@ -77,6 +77,9 @@ beacon installed
 
 # Remove a package
 beacon remove python313
+
+# Push all installed packages to hub
+beacon pushlist
 ```
 
 ### Development Shell
