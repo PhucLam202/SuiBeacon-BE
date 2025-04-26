@@ -63,4 +63,5 @@ export enum ErrorCode {
     DB_SCHEMA_ERROR = 37009 ,
   
     GROK_API_ERROR = 38001,
+
   }

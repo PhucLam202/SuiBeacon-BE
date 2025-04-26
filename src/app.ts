@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { Routes } from "./router/index";
+import connectDB from './config/database';
 
 // Load environment variables
 dotenv.config();
@@ -16,6 +17,9 @@ app.use(express.urlencoded({ extended: false }));
 
 // Start server
 (async () => {
+  // Connect to MongoDB
+  await connectDB();
+  
   const server = await Routes(app);
 
   // Global error handler
