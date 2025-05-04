@@ -1,45 +1,50 @@
-import { MongoClient } from 'mongodb';
-import dotenv from 'dotenv';
-import { AppError } from '../middlewares/e/AppError';
-import { ErrorCode } from '../middlewares/e/ErrorCode';
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import { AppError } from "../middlewares/e/AppError";
+import { ErrorCode } from "../middlewares/e/ErrorCode";
 
 dotenv.config();
 
-let client: MongoClient;
-let db: any;
+let connection: mongoose.Connection;
 
 const connectDB = async () => {
   try {
-    client = new MongoClient(process.env.DATABASE_URL || '');
-    await client.connect();
-    db = client.db();
-    console.log(`MongoDB Connected: ${client.options.hosts?.[0]}`);
-    
-    // Tạo các indexes cần thiết
-    await db.collection('users').createIndex({ walletAddress: 1 }, { unique: true });
-    await db.collection('packages').createIndex({ name: 1 });
-    
-    return { client, db };
+    const connectstring = process.env.DATABASE_URL;
+    if (!connectstring) {
+      throw new Error("DATABASE_URL environment variable is not defined");
+    }
+    console.log(connectstring, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    await mongoose.connect(connectstring);
+    connection = mongoose.connection;
+
+    console.log(`MongoDB Connected: ${connection.host}`);
+
+    return connection;
   } catch (error: any) {
     console.error(`Error: ${error.message}`);
-    throw AppError.newError500(ErrorCode.DB_CONNECTION_ERROR, `Failed to connect to database: ${error.message}`);    
+    throw AppError.newError500(
+      ErrorCode.DB_CONNECTION_ERROR,
+      `Failed to connect to database: ${error.message}`
+    );
   }
 };
 
-// Hàm để lấy instance db đã kết nối
+// Global handler for unhandled promise rejections
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+  // Optionally exit the process
+  process.exit(1);
+});
+
+// Function to get the mongoose connection
 export const getDb = () => {
-  if (!db) {
-    throw new Error('Database not connected. Call connectDB first.');
+  if (!connection) {
+    throw new Error("Database not connected. Call connectDB first.");
   }
-  return db;
-};
-
-// Hàm để lấy client
-export const getClient = () => {
-  if (!client) {
-    throw new Error('Database client not connected. Call connectDB first.');
-  }
-  return client;
+  return connection;
 };
 
 export default connectDB;

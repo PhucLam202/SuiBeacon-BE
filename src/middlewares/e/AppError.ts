@@ -75,4 +75,8 @@ export class AppError {
     static newRootError502(errCode: ErrorCode, msg: string, root: Error): AppError {
         return new AppError(msg, StatusCodes.BAD_GATEWAY, errCode, root)
     }
+
+    static newError429(errCode: ErrorCode, msg: string): AppError {
+        return new AppError(msg, StatusCodes.TOO_MANY_REQUESTS, errCode)
+    }
 }

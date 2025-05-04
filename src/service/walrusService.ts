@@ -66,10 +66,77 @@ class WalrusService {
 
       return blobId;
     } catch (error: any) {
-      throw AppError.newError500(
-        ErrorCode.WALRUS_UPLOAD_FAILED,
-        "WALRUS_UPLOAD_FAILED " + (error as Error).message
-      );
+      // Xử lý các loại lỗi cụ thể từ StorageNodeAPIError
+      if (error.status === 400) {
+        // BadRequestError
+        throw AppError.newError400(
+          ErrorCode.WALRUS_INVALID_FORMAT,
+          `Invalid request format: ${error.error?.message || error.message}`
+        );
+      } else if (error.status === 401) {
+        // AuthenticationError
+        throw AppError.newError403(
+          ErrorCode.WALRUS_UPLOAD_FAILED,
+          `Authentication failed: ${error.error?.message || error.message}`
+        );
+      } else if (error.status === 403) {
+        // PermissionDeniedError
+        throw AppError.newError403(
+          ErrorCode.WALRUS_UPLOAD_FAILED,
+          `Permission denied: ${error.error?.message || error.message}`
+        );
+      } else if (error.status === 404) {
+        // NotFoundError
+        throw AppError.newError404(
+          ErrorCode.WALRUS_UPLOAD_FAILED,
+          `Resource not found: ${error.error?.message || error.message}`
+        );
+      } else if (error.status === 409) {
+        // ConflictError
+        throw AppError.newError400(
+          ErrorCode.WALRUS_UPLOAD_FAILED,
+          `Resource conflict: ${error.error?.message || error.message}`
+        );
+      } else if (error.status === 422) {
+        // UnprocessableEntityError
+        throw AppError.newError400(
+          ErrorCode.WALRUS_UPLOAD_FAILED,
+          `Unprocessable entity: ${error.error?.message || error.message}`
+        );
+      } else if (error.status === 429) {
+        // RateLimitError
+        throw AppError.newError429(
+          ErrorCode.WALRUS_UPLOAD_FAILED,
+          `Rate limit exceeded: ${error.error?.message || error.message}`
+        );
+      } else if (error.status === 451) {
+        // LegallyUnavailableError
+        throw AppError.newError403(
+          ErrorCode.WALRUS_UPLOAD_FAILED,
+          `Content legally unavailable: ${error.error?.message || error.message}`
+        );
+      } else if (error.constructor.name === 'ConnectionError') {
+        throw AppError.newError500(
+          ErrorCode.WALRUS_CONNECTION_ERROR,
+          `Connection error: ${error.message}`
+        );
+      } else if (error.constructor.name === 'ConnectionTimeoutError') {
+        throw AppError.newError500(
+          ErrorCode.WALRUS_TIMEOUT,
+          `Connection timeout: ${error.message}`
+        );
+      } else if (error.constructor.name === 'UserAbortError') {
+        throw AppError.newError400(
+          ErrorCode.WALRUS_UPLOAD_FAILED,
+          `Request aborted: ${error.message}`
+        );
+      } else {
+        // InternalServerError or other errors
+        throw AppError.newError500(
+          ErrorCode.WALRUS_UPLOAD_FAILED,
+          "WALRUS_UPLOAD_FAILED " + (error as Error).message
+        );
+      }
     }
   }
 
@@ -84,7 +151,6 @@ class WalrusService {
       );
     }
   }
-
   async readBlobAsText(
     blobId: string,
     encoding: BufferEncoding = "utf-8"
