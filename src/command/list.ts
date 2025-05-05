@@ -19,18 +19,12 @@ async function listPackages(): Promise<PackageInfo[]> {
       { maxBuffer: 10 * 1024 * 1024 }
     );
 
-    // Pretty‑print raw JSON
-    console.log(
-      chalk.gray("Debug: Raw nix profile list output:"),
-      inspect(JSON.parse(stdout), { depth: 2, colors: true, compact: false })
-    );
-
     // Parse
     const profileData = JSON.parse(stdout);
-    console.log(
-      chalk.gray("Debug: Parsed profile data:"),
-      inspect(profileData, { depth: 4, colors: true, compact: false })
-    );
+    // console.log(
+    //   chalk.gray("Debug: Parsed profile data:"),
+    //   inspect(profileData, { depth: 4, colors: true, compact: false })
+    // );
 
     // Lấy elements đúng cách
     const elems = profileData.elements ?? {};

@@ -1,37 +1,25 @@
-import { getDb } from '../config/database';
-import { ObjectId } from 'mongodb';
+import mongoose, { Schema, Document } from 'mongoose';
 
-class Package {
-  static collection() {
-    return getDb().collection('packages');
-  }
-
-  static async findByName(name: string) {
-    return await this.collection().findOne({ name });
-  }
-
-  static async create(packageData: any) {
-    const result = await this.collection().insertOne({
-      ...packageData,
-      installCount: 0,
-      createdAt: new Date()
-    });
-    return result.insertedId;
-  }
-
-  static async incrementInstallCount(name: string) {
-    return await this.collection().updateOne(
-      { name },
-      { $inc: { installCount: 1 } }
-    );
-  }
-
-  static async addWalrusBlob(name: string, blobData: any) {
-    return await this.collection().updateOne(
-      { name },
-      { $push: { walrusBlobs: blobData } }
-    );
-  }
+export interface IPackage extends Document {
+  walletAddress: string;
+  blobId: string;
+  package: PackageDetail;
+  metadata?: Record<string, any>;
 }
 
-export default Package;
+export interface PackageDetail {
+  name: string;
+  version: string;
+}
+
+const PackageSchema = new Schema<IPackage>({
+  walletAddress: { type: String, required: true, index: true },
+  blobId: { type: String, required: true },
+  package: {
+    name: { type: String, required: true },
+    version: { type: String, required: true }
+  },
+  metadata: { type: Schema.Types.Mixed }
+});
+
+export default mongoose.model<IPackage>('Package', PackageSchema);
