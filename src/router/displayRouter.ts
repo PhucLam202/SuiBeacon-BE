@@ -7,5 +7,8 @@ const displayController = new DisplayController();
 displayRouter.get("/:walletAddress", (req, res, next) => {
     displayController.getAllDataWithPackages(req, res, next);
 });
+displayRouter.get("/summary/:walletAddress", (req, res, next) => {
+    displayController.getSumProjectAndPackage(req, res, next);
+});
 
 export default displayRouter;

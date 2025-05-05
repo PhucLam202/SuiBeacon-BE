@@ -22,7 +22,7 @@ class WalrusController {
     try {
       const { data, description } = req.body;
 
-      // Kiểm tra xem có dữ liệu không
+      // Check if data exists
       if (!data) {
         return res.status(400).json({
           success: false,
@@ -32,7 +32,7 @@ class WalrusController {
 
       await this.walrusService.checkBalance();
 
-      // Upload dữ liệu lên Walrus với description
+      // Upload data to Walrus with description
       const blobId = await this.walrusService.uploadBlob(data, description);
       appExpress.response200({ blobId });
     } catch (e) {
@@ -81,15 +81,15 @@ class WalrusController {
     }
   }
   /**
-   * Đẩy danh sách packages đã cài đặt lên Walrus và lưu thông tin vào database
-   * @param req Request từ client
-   * @param res Response trả về client
-   * @param next Middleware tiếp theo
+   * Push installed package list to Walrus and save information to database
+   * @param req Request from client
+   * @param res Response to client
+   * @param next Next middleware
    */
   async pushPackages(req: Request, res: Response, next: NextFunction) {
     const appExpress = new CustomExpress(req, res, next);
     try {
-      // STEP 1: Kiểm tra wallet address từ header hoặc body
+      // STEP 1: Check wallet address from header or body
       const walletAddress = req.headers['wallet-address'] as string || req.body.walletAddress;
       
       if (!walletAddress) {
@@ -99,10 +99,10 @@ class WalrusController {
         });
       }
       
-      // STEP 2: Lấy danh sách packages đã cài đặt từ service
+      // STEP 2: Get list of installed packages from service
       const packages = await this.listPackagesService.getPackages();
       
-      // STEP 3: Kiểm tra xem có packages nào không
+      // STEP 3: Check if any packages exist
       if (packages.length === 0) {
         return res.status(404).json({
           success: false,
@@ -110,7 +110,7 @@ class WalrusController {
         });
       }
       
-      // STEP 4: Tạo payload chứa thông tin packages và metadata
+      // STEP 4: Create payload with package information and metadata
       const payload = {
         packages,
         metadata: {
@@ -121,20 +121,20 @@ class WalrusController {
         }
       };
       
-      // STEP 5: Upload payload lên Walrus và nhận blobId
+      // STEP 5: Upload payload to Walrus and get blobId
       const blobId = await this.walrusService.uploadBlob(
         payload, 
         `Complete package list for ${walletAddress}`
       );
       
-      // STEP 6: Lưu thông tin vào DataModel
+      // STEP 6: Save information to DataModel
       await DataModel.create({
         walletAddress: walletAddress,
         blobId: blobId,
         createdAt: new Date()
       });
       
-      // STEP 7: Lưu từng package vào database
+      // STEP 7: Save each package to database
       for (const pkg of packages) {
         await Package.create({
           walletAddress,
@@ -149,7 +149,7 @@ class WalrusController {
         });
       }
       
-      // STEP 8: Lưu lịch sử push vào PushHistory
+      // STEP 8: Save push history to PushHistory
       await PushHistory.create({
         walletAddress,
         blobId,
@@ -158,14 +158,14 @@ class WalrusController {
         createdAt: new Date()
       });
       
-      // STEP 9: Trả về kết quả thành công cho client
+      // STEP 9: Return success result to client
       appExpress.response200({ 
         success: true,
         payload,
         blobId 
       });
     } catch (e) {
-      // STEP 10: Xử lý lỗi nếu có
+      // STEP 10: Handle errors if any
       next(e);
     }
   }

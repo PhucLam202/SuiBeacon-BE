@@ -18,7 +18,7 @@ class WalrusService {
       // Cast the SuiClient to any to bypass the type checking
       suiClient: this.suiClient as any,
     });
-    //dán env vô đây
+    // Add environment variables here
     const mnemonic = process.env.SUI_MNEMONIC;
     const MnemonicStr = mnemonic as string ;
     if (!mnemonic) {
@@ -32,26 +32,26 @@ class WalrusService {
       let fileData: Uint8Array;
       if (data) {
         if (typeof data === "string") {
-          // Nếu data là string
+          // If data is a string
           fileData = new TextEncoder().encode(data);
         } else if (data instanceof Uint8Array) {
-          // Nếu data đã là Uint8Array
+          // If data is already a Uint8Array
           fileData = data;
         } else {
-          // Nếu data là JSON object
+          // If data is a JSON object
           fileData = new TextEncoder().encode(JSON.stringify(data));
         }
       } else {
         fileData = new TextEncoder().encode("Hello from the walrus SDK!!!\n");
       }
 
-      // Chuẩn bị attributes với contentType và contentLength
+      // Prepare attributes with contentType and contentLength
       const attributes: Record<string, string> = {
         contentType: "text/plain",
         contentLength: fileData.length.toString(),
       };
 
-      // Thêm description vào attributes nếu có
+      // Add description to attributes if provided
       if (description) {
         attributes.description = description;
       }
@@ -66,7 +66,7 @@ class WalrusService {
 
       return blobId;
     } catch (error: any) {
-      // Xử lý các loại lỗi cụ thể từ StorageNodeAPIError
+      // Handle specific error types from StorageNodeAPIError
       if (error.status === 400) {
         // BadRequestError
         throw AppError.newError400(
@@ -166,7 +166,7 @@ class WalrusService {
     }
   }
 
-  //check balance
+  // Check balance
   async checkBalance(): Promise<{ suiBalance: string; walBalance: string }> {
     try {
       const address = this.keypair.toSuiAddress();

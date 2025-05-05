@@ -1,4 +1,3 @@
-// Định nghĩa kiểu dữ liệu cho response
 export interface PushResponse {
   success: boolean;
   message?: string;

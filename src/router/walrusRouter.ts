@@ -4,7 +4,6 @@ import WalrusController from "../controller/walrusController";
 const walrusRouter = express.Router();
 const walrusController = new WalrusController();
 
-// Route để lấy dữ liệu
 walrusRouter.post("/upload", (req, res, next) => {
   walrusController.uploadFile(req, res, next);
 });

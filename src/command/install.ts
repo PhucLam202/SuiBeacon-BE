@@ -4,30 +4,30 @@ import ora, { Ora } from 'ora';
 import { promisify } from 'util';
 import PackageInfo from '../types/dataCli';
 
-// Promisify exec để sử dụng async/await
+// Promisify exec to use async/await
 const execPromise = promisify(exec);
 
 async function installPackage(pkg: string, spinner: Ora, requestedVersion?: string) {
     try {
-        // Hiển thị thông báo bắt đầu tìm kiếm gói
+        // Display message for starting package search
         spinner.start(chalk.blue(`Querying package ${pkg}${requestedVersion ? ` version ${requestedVersion}` : ''}...`));
 
-        // Thoát các ký tự đặc biệt trong tên gói để tránh lỗi shell
+        // Escape special characters in package name to avoid shell errors
         const escapedPkg = pkg.replace(/'/g, "'\\''");
 
-        // Xóa tiền tố 'v' khỏi requestedVersion (nếu có)
+        // Remove 'v' prefix from requestedVersion (if present)
         const cleanVersion = requestedVersion?.replace(/^v/, '');
 
-        // Gọi nix search để tìm gói trong nixpkgs
+        // Call nix search to find package in nixpkgs
         const { stdout } = await execPromise(
             `nix --extra-experimental-features "nix-command flakes" search nixpkgs '${escapedPkg}' --json --no-update-lock-file 2>/dev/null`,
             { maxBuffer: 10 * 1024 * 1024 } // 10MB buffer
         );
 
-        // Phân tích kết quả JSON từ nix search
+        // Parse JSON results from nix search
         const searchResults: Record<string, any> = JSON.parse(stdout);
 
-        // Hàm tính điểm relevance để ưu tiên gói chính
+        // Function to calculate relevance score to prioritize main packages
         const calculateRelevance = (pkgPath: string, info: any): number => {
             const name = pkgPath.split('.').pop()?.toLowerCase() || '';
             const fullPath = pkgPath.toLowerCase();
@@ -50,7 +50,7 @@ async function installPackage(pkg: string, spinner: Ora, requestedVersion?: stri
             return score;
         };
 
-        // Tìm gói phù hợp
+        // Find suitable package
         const pkgEntries = Object.entries(searchResults)
             .map(([path, info]) => ({
                 path,
@@ -58,7 +58,7 @@ async function installPackage(pkg: string, spinner: Ora, requestedVersion?: stri
                 relevance: calculateRelevance(path, info),
             }))
             .filter(({ relevance }) => relevance > 0)
-            .sort((a, b) => b.relevance - b.relevance);
+            .sort((a, b) => b.relevance - a.relevance);
 
         const pkgEntry = pkgEntries.find(({ info }) => {
             if (cleanVersion) {
@@ -82,16 +82,16 @@ async function installPackage(pkg: string, spinner: Ora, requestedVersion?: stri
             type: 'unknown', // Adjust based on PackageInfo definition
         };
 
-        // Biến đổi pkgPath để sử dụng với nix profile
+        // Transform pkgPath for use with nix profile
         const installPath = `nixpkgs#${pkgPath.split('.').pop()}`;
 
-        // Cập nhật spinner để hiển thị thông báo cài đặt
+        // Update spinner to display installation message
         spinner.text = chalk.blue(`Installing ${pkg} version ${packageInfo.version}`);
 
-        // Cài đặt package bằng nix profile
+        // Install package using nix profile
         const installCommand = `nix --extra-experimental-features "nix-command flakes" profile install ${installPath} 2>/dev/null`;
 
-        // Log debug thông tin
+        // Log debug information
         console.log(chalk.gray(`Debug: Running install command: ${installCommand}`));
 
         await new Promise((resolve, reject) => {

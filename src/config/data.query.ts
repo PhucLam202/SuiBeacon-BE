@@ -66,9 +66,6 @@ export async function getAllDataWithPackages(walletAddress: string, page = 1, li
     return [];
   }
 
-  // Get all blobIds
-  const blobIds = dataList.map(data => data.blobId);
-
   // Combine Data and packages (only keep name + version)
   return dataList.map(data => ({
     ...data,
@@ -83,4 +80,48 @@ export async function getAllDataWithPackages(walletAddress: string, page = 1, li
  */
 export async function countData(walletAddress: string): Promise<number> {
   return await DataModel.countDocuments({ walletAddress });
+}
+
+/**
+ * Count unique projects for a wallet address
+ * @param walletAddress Wallet address
+ * @returns Number of unique projects
+ */
+export async function countUniqueProjects(walletAddress: string): Promise<number> {
+  const uniqueProjects = await DataModel.distinct('projectName', { walletAddress });
+  return uniqueProjects.length;
+}
+
+/**
+ * Count total packages for a wallet address
+ * @param walletAddress Wallet address
+ * @returns Total number of packages
+ */
+export async function countTotalPackages(walletAddress: string): Promise<number> {
+  return await Package.countDocuments({ walletAddress });
+}
+
+/**
+ * Get data with package counts for each blobId
+ * @param walletAddress Wallet address
+ * @returns Array of data objects with package counts
+ */
+export async function getDataWithPackageCounts(walletAddress: string): Promise<any[]> {
+  // Get all data records for the wallet
+  const dataList = await DataModel.find({ walletAddress })
+    .sort({ createdAt: -1 })
+    .lean();
+  
+  // For each data record, count the packages with the same blobId
+  const result = [];
+  for (const data of dataList) {
+    const packageCount = await Package.countDocuments({ blobId: data.blobId });
+    
+    result.push({
+      ...data,
+      packageCount
+    });
+  }
+  
+  return result;
 }

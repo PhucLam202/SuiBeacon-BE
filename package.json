@@ -8,10 +8,11 @@
   },
   "type": "module",
   "scripts": {
-    "build": "tsc --project tsconfig.json",
+    "build": "npm run ensure-nix && tsc --project tsconfig.json",
     "start": "node dist/cli.js",
     "dev": "nodemon --ext ts,js,json --exec 'tsx src/app.ts'",
-    "link": "npm link --global"
+    "link": "npm link --global",
+    "ensure-nix": "node scripts/ensure-nix.js"
   },
   "files": [
     "dist"

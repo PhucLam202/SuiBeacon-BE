@@ -10,7 +10,15 @@ import removePackage from "./command/remove.js";
 import searchAvailablePackages from "./command/search.js";
 import updatePackage from "./command/update.js";
 import boxen from "boxen";
-import pushPackageList from "./command/pushlist.js";
+import pushPackageList from "./command/push.js";
+import { pullFromWalrus } from "./command/pull.js";
+import connectDB from './config/database.js'  ;
+
+// Ensure database connection is established
+connectDB().catch(err => {
+  console.error(chalk.red('Failed to connect to database:'), err.message);
+  process.exit(1);
+});
 
 const program = new Command();
 program
@@ -18,7 +26,7 @@ program
   .description("CLI tool powered by Nix for package management")
   .version("1.0.0");
 
-// // Lệnh install
+// Install command
 program
   .command("install <package> [version]")
   .description("Install a package with optional version")
@@ -33,7 +41,7 @@ program
     installPackage(pkg, spinner, version);
   });
 
-// Lệnh list package installed
+// List installed packages command
 program
   .command("list")
   .description("List all installed packages")
@@ -42,7 +50,7 @@ program
     listPackages();
   });
 
-// Lệnh remove package
+// Remove package command
 program
   .command("remove <package>")
   .description("remove a package")
@@ -51,7 +59,7 @@ program
     removePackage(pkg);
   });
 
-// Lệnh search
+// Search command
 program
   .command("search [search]")
   .description("Search available packages")
@@ -70,7 +78,7 @@ program
     console.log(chalk.blue("Starting development shell..."));
     startDevelopmentShell();
   });
-// Lệnh update
+// Update command
 program
   .command("update <package>")
   .description("Update a package")
@@ -84,7 +92,7 @@ function startDevelopmentShell() {
   });
 }
 
-// Lệnh đồng bộ packages với tài khoản
+// Sync packages with account command
 program
   .command("sync")
   .description("Sync installed packages with your account")
@@ -127,20 +135,20 @@ program
     }
   });
 
-// Thêm lệnh pushlist mới (không yêu cầu wallet)
+// New push command (no wallet required)
 program
-  .command("pushlist")
+  .command("push <projectNName>")
   .description("Push all installed packages to hub without requiring wallet")
-  .action(() => {
+  .action((projectName: string) => {
     const spinner = ora({
       text: chalk.blue("Pushing package list to hub..."),
       spinner: "dots",
     }).start();
     
-    pushPackageList(spinner);
+    pushPackageList(projectName, spinner);
   });
 
-// Sửa lại lệnh push hiện tại
+// Previous push command (commented out)
 // program
 //   .command("push")
 //   .description("Push your packages to the hub")
@@ -177,5 +185,17 @@ program
 //     }
 //   });
 
-// Chạy CLI
+program
+  .command("pull <url>")
+  .description("Pull and install a package list from a remote URL")
+  .action((url) => {
+    const spinner = ora({
+      text: chalk.blue("Preparing to pull packages from remote..."),
+      spinner: "dots",
+    }).start();
+
+    pullFromWalrus(url, spinner);
+  });
+
+// Run CLI
 program.parse(process.argv);
