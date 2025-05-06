@@ -1,27 +1,32 @@
 import chalk from "chalk";
 import { exec } from "child_process";
 import { promisify } from "util";
+import ora from "ora";
 
 const execPromise = promisify(exec);
 
 async function removePackage(pkg: string) {
+    const spinner = ora({
+        text: chalk.blue(`Removing ${pkg}...`),
+        spinner: "dots",
+    }).start();
+    
     try {
         const installed = await isPackageInstalled(pkg);
         
         if (!installed) {
-            console.log(chalk.yellow(`❌ Package ${pkg} is not installed.`));
+            spinner.fail(chalk.yellow(`❌ Package ${pkg} is not installed.`));
             return;
         }
-
-        console.log(chalk.blue(`Removing ${pkg}...`));
         
         // Use nix profile remove instead of nix-env -e
         const command = `nix --extra-experimental-features "nix-command flakes" profile remove ${pkg}`;
         await execPromise(command);
         
-        console.log(chalk.green(`✅ Successfully uninstalled ${pkg}`));
+        spinner.succeed(chalk.green(`✅ Successfully uninstalled ${pkg}`));
     } catch (err: any) {
-        console.error(chalk.red(`❌ Error: ${err.message}`));
+        spinner.fail(chalk.red(`❌ Error: ${err.message}`));
+        console.error(chalk.yellow("Full error details:"), err);
     }
 }
 

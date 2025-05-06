@@ -5,6 +5,7 @@ import ora from "ora";
 import { promisify } from "util";
 import { inspect } from "util";
 import PackageInfo from "../types/dataCli";
+import mongoose from "mongoose";
 
 const execPromise = promisify(exec);
 async function listPackages(): Promise<PackageInfo[]> {
@@ -26,7 +27,7 @@ async function listPackages(): Promise<PackageInfo[]> {
     //   inspect(profileData, { depth: 4, colors: true, compact: false })
     // );
 
-    // Lấy elements đúng cách
+    // Get elements correctly
     const elems = profileData.elements ?? {};
     const pkgNames = Object.keys(elems);
 
@@ -85,6 +86,7 @@ async function listPackages(): Promise<PackageInfo[]> {
         ].join("\n")
       )
     );
+    
     return [];
   }
 }
