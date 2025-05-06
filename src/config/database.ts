@@ -16,12 +16,12 @@ const connectDB = async () => {
     
     // Set mongoose options with increased timeouts
     mongoose.set('bufferCommands', true);
-    mongoose.set('bufferTimeoutMS', 100000); // Increase buffer timeout to 30 seconds
+    mongoose.set('bufferTimeoutMS', 100000); 
     
     // Connect with improved options
     await mongoose.connect(connectstring, {
-      serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
-      socketTimeoutMS: 45000, // Increase socket timeout to 45 seconds
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000, 
     });
     
     connection = mongoose.connection;
