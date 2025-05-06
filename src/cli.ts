@@ -13,6 +13,7 @@ import boxen from "boxen";
 import pushPackageList from "./command/push.js";
 import { pullFromWalrus } from "./command/pull.js";
 import connectDB from './config/database.js'  ;
+import mongoose from "mongoose";
 
 // Ensure database connection is established
 connectDB().catch(err => {
@@ -199,3 +200,38 @@ program
 
 // Run CLI
 program.parse(process.argv);
+
+// Handle MongoDB disconnection for CLI commands
+if (mongoose.connection.readyState === 1) {
+  // Force process exit after commands complete
+  process.on('beforeExit', async () => {
+    try {
+      await mongoose.disconnect();
+    } catch (err) {
+      console.error('Error disconnecting from MongoDB:', err);
+    }
+  });
+  
+  // Also handle explicit exit signals
+  process.on('SIGINT', async () => {
+    try {
+      await mongoose.disconnect();
+      console.log(chalk.gray('\nDatabase connection closed.'));
+      process.exit(0);
+    } catch (err) {
+      console.error('Error disconnecting from MongoDB:', err);
+      process.exit(1);
+    }
+  });
+  
+  // Force exit after a timeout to prevent hanging
+  setTimeout(() => {
+    if (mongoose.connection.readyState === 1) {
+      mongoose.disconnect().finally(() => {
+        process.exit(0);
+      });
+    } else {
+      process.exit(0);
+    }
+  }, 1000); // 1 second timeout
+}

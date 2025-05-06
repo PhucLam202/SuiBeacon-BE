@@ -32,14 +32,12 @@ const connectDB = async () => {
     });
     
     connection.on('disconnected', () => {
-      console.warn('MongoDB disconnected. Attempting to reconnect...');
     });
     
     connection.on('reconnected', () => {
       console.log('MongoDB reconnected successfully');
     });
 
-    console.log(`MongoDB Connected: ${connection.host}`);
 
     return connection;
   } catch (error: any) {

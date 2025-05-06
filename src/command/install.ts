@@ -10,7 +10,6 @@ const execPromise = promisify(exec);
 async function installPackage(pkg: string, spinner: Ora, requestedVersion?: string) {
     try {
         // Display message for starting package search
-        spinner.start(chalk.blue(`Querying package ${pkg}${requestedVersion ? ` version ${requestedVersion}` : ''}...`));
 
         // Escape special characters in package name to avoid shell errors
         const escapedPkg = pkg.replace(/'/g, "'\\''");
@@ -91,9 +90,6 @@ async function installPackage(pkg: string, spinner: Ora, requestedVersion?: stri
         // Install package using nix profile
         const installCommand = `nix --extra-experimental-features "nix-command flakes" profile install ${installPath} 2>/dev/null`;
 
-        // Log debug information
-        console.log(chalk.gray(`Debug: Running install command: ${installCommand}`));
-
         await new Promise((resolve, reject) => {
             exec(installCommand, (error, stdout, stderr) => {
                 if (error) {
@@ -101,7 +97,7 @@ async function installPackage(pkg: string, spinner: Ora, requestedVersion?: stri
                     reject(new Error(stderr));
                     return;
                 }
-                spinner.succeed(chalk.green(`✅ Successfully installed ${pkg} version ${packageInfo.version}`));
+                spinner.succeed(chalk.green(`Successfully installed ${pkg} version ${packageInfo.version}`));
                 resolve(stdout);
             });
         });
