@@ -74,13 +74,13 @@ program
     searchAvailablePackages(search, spinner);
   });
 
-program
-  .command("devVM")
-  .description("Start a development shell using")
-  .action(() => {
-    console.log(chalk.blue("Starting development shell..."));
-    startDevelopmentShell();
-  });
+// program
+//   .command("devVM")
+//   .description("Start a development shell using")
+//   .action(() => {
+//     console.log(chalk.blue("Starting development shell..."));
+//     startDevelopmentShell();
+//   });
 // Update command
 program
   .command("update <package>")
