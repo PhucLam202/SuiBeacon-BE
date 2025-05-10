@@ -10,7 +10,7 @@ import Package from "../models/Package.js";
 import PushHistory from "../models/PushHistory.js";
 import connectDB, { isConnected } from "../config/database.js";
 
-async function pushPackageList(projectName: string, spinner: Ora) {
+async function pushPackageList(projectName: string, spinner: Ora,userAddress:string) {
   //Temporarily fix the hard address, later we will redo the auth function to get the address from FE and save it automatically.
   //Flow: 
   // User logs in 
@@ -63,7 +63,8 @@ async function pushPackageList(projectName: string, spinner: Ora) {
     );
     
     // Default wallet address for CLI usage
-    const walletAddress = "0xc9b3863e6f8249dfbd6c559c3f530adfce1e2976b726848c37d550ebb90774fe";
+    const walletAddress = userAddress;
+    // const walletAddress = "0xc9b3863e6f8249dfbd6c559c3f530adfce1e2976b726848c37d550ebb90774fe";
     
     // STEP 6: Save to DataModel with both walletAddress and projectName
     try {

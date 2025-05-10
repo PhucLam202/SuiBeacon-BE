@@ -12,12 +12,14 @@ import updatePackage from "./command/update.js";
 import boxen from "boxen";
 import pushPackageList from "./command/push.js";
 import { pullFromWalrus } from "./command/pull.js";
-import connectDB from './config/database.js'  ;
+import connectDB from "./config/database.js";
+import login, { getLoggedInUser } from "./command/login.js";
 import mongoose from "mongoose";
+import installQuickstart from "./command/quickstart.js";
 
 // Ensure database connection is established
-connectDB().catch(err => {
-  console.error(chalk.red('Failed to connect to database:'), err.message);
+connectDB().catch((err) => {
+  console.error(chalk.red("Failed to connect to database:"), err.message);
   process.exit(1);
 });
 
@@ -93,98 +95,25 @@ function startDevelopmentShell() {
   });
 }
 
-// Sync packages with account command
-program
-  .command("sync")
-  .description("Sync installed packages with your account")
-  .option("-w, --wallet <address>", "Your wallet address")
-  .action(async (options) => {
-    const spinner = ora({
-      text: chalk.blue("Syncing packages with your account..."),
-      spinner: "dots",
-    }).start();
-    
-    try {
-      if (!options.wallet) {
-        spinner.fail(chalk.red("Wallet address is required"));
-        console.log(chalk.yellow("Usage: beacon sync --wallet <address>"));
-        return;
-      }
-      
-      const response = await fetch(`http://localhost:${process.env.PORT || 5000}/v1/userPackages/${options.wallet}/sync`, {
-        method: 'POST'
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        spinner.fail(chalk.red(`Failed to sync: ${data.message}`));
-        return;
-      }
-      
-      spinner.succeed(chalk.green("✅ Packages synced successfully"));
-      console.log(
-        boxen(`Synced ${data.packages.length} packages with account ${options.wallet}`, {
-          padding: 1,
-          margin: 1,
-          borderStyle: "round",
-          borderColor: "green",
-        })
-      );
-    } catch (err: any) {
-      spinner.fail(chalk.red(`❌ Error: ${err.message}`));
-    }
-  });
-
 // New push command (no wallet required)
 program
-  .command("push <projectNName>")
-  .description("Push all installed packages to hub without requiring wallet")
+  .command("push <projectName>")
+  .description("Push all installed packages to hub")
   .action((projectName: string) => {
     const spinner = ora({
       text: chalk.blue("Pushing package list to hub..."),
       spinner: "dots",
     }).start();
-    
-    pushPackageList(projectName, spinner);
+
+    const user = getLoggedInUser();
+    if (!user) {
+      spinner.fail(chalk.red("You need to login first. Use 'beacon login <userAddress>'"));
+      return;
+    }
+
+    pushPackageList(projectName, spinner, user.userAddress);
   });
 
-// Previous push command (commented out)
-// program
-//   .command("push")
-//   .description("Push your packages to the hub")
-//   .requiredOption("-w, --wallet <address>", "Your wallet address")
-//   .action(async (options) => {
-//     const spinner = ora({
-//       text: chalk.blue("Pushing packages to hub..."),
-//       spinner: "dots",
-//     }).start();
-    
-//     try {
-//       const response = await fetch(`http://localhost:${process.env.PORT || 5000}/v1/userPackages/${options.wallet}/push`, {
-//         method: 'POST'
-//       });
-      
-//       const data = await response.json();
-      
-//       if (!response.ok) {
-//         spinner.fail(chalk.red(`Failed to push: ${data.message}`));
-//         return;
-//       }
-      
-//       spinner.succeed(chalk.green("✅ Packages pushed to hub successfully"));
-//       console.log(
-//         boxen(`Pushed ${data.packages.length} packages to hub\nBlob ID: ${data.blobId}`, {
-//           padding: 1,
-//           margin: 1,
-//           borderStyle: "round",
-//           borderColor: "green",
-//         })
-//       );
-//     } catch (err: any) {
-//       spinner.fail(chalk.red(`❌ Error: ${err.message}`));
-//     }
-//   });
 
 program
   .command("pull <url>")
@@ -198,32 +127,82 @@ program
     pullFromWalrus(url, spinner);
   });
 
+// Login command
+program
+  .command("login <userAddress>")
+  .description("Login with your user address")
+  .action((userAddress: string) => {
+    const spinner = ora({
+      text: chalk.blue(`Logging in with address: ${userAddress}`),
+      spinner: "dots",
+    }).start();
+
+    login(userAddress, spinner);
+  });
+
+// Thêm command quickstart
+program
+  .command("quickstart <environment>")
+  .description("Quickly install all packages needed for a specific development environment")
+  .action((environment: string) => {
+    const spinner = ora({
+      text: chalk.blue(`Preparing ${environment} development environment...`),
+      spinner: "dots",
+    }).start();
+
+    installQuickstart(environment, spinner);
+  });
+
+// Thêm command để liệt kê các quickstart có sẵn
+program
+  .command("environments")
+  .description("List all available development environments")
+  .action(() => {
+    console.log(chalk.inverse("Available development environments:"));
+    
+    console.log(
+      boxen(
+        `${chalk.bold.green("sui")} - SUI blockchain development environment\n` +
+        `${chalk.bold.green("node")} - Node.js development environment\n` +
+        `${chalk.bold.green("rust")} - Rust development environment`,
+        {
+          padding: 1,
+          margin: 1,
+          borderStyle: "round",
+          borderColor: "green",
+        }
+      )
+    );
+    
+    console.log(chalk.yellow(`To set up an environment, use: beacon quickstart <environment>`));
+  });
+
 // Run CLI
 program.parse(process.argv);
 
 // Handle MongoDB disconnection for CLI commands
 if (mongoose.connection.readyState === 1) {
   // Force process exit after commands complete
-  process.on('beforeExit', async () => {
+  process.on("beforeExit", async () => {
     try {
       await mongoose.disconnect();
     } catch (err) {
-      console.error('Error disconnecting from MongoDB:', err);
+      console.error("Error disconnecting from MongoDB:", err);
     }
   });
-  
+
   // Also handle explicit exit signals
-  process.on('SIGINT', async () => {
+  process.on("SIGINT", async () => {
     try {
       await mongoose.disconnect();
-      console.log(chalk.gray('\nDatabase connection closed.'));
+      console.log(chalk.gray("\nDatabase connection closed."));
       process.exit(0);
     } catch (err) {
-      console.error('Error disconnecting from MongoDB:', err);
+      console.error("Error disconnecting from MongoDB:", err);
       process.exit(1);
     }
   });
-  
+
   // Force exit after a timeout to prevent hanging
   setTimeout(() => {
     if (mongoose.connection.readyState === 1) {
