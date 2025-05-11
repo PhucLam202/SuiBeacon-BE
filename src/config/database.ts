@@ -4,7 +4,6 @@ const connectDB = async () => {
   try {
     // Kiểm tra xem đã có connection chưa
     if (mongoose.connection.readyState === 1) {
-      console.log("Using existing database connection");
       return mongoose.connection;
     }
     
@@ -18,7 +17,6 @@ const connectDB = async () => {
       socketTimeoutMS: 45000,
     });
     
-    console.log("Connected to MongoDB");
     return mongoose.connection;
   } catch (error) {
     console.error("MongoDB connection error:", error);
