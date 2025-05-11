@@ -1,6 +1,6 @@
 {
   "name": "suibeacon",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A basic CLI tool for downloading files",
   "main": "dist/cli.js",
   "bin": {
