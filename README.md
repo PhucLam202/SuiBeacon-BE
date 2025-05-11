@@ -20,13 +20,14 @@ A powerful CLI tool powered by Nix for seamless package management.
 - 📋 **Package Listing** - View all installed packages
 - 🛠️ **Dev Shell Support** - Isolated development environments
 - ⚡ **Cache System** - Lightning-fast package searches
+- 🌐 **API Server** - Access package data via REST API
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 Before you begin, ensure you have the following installed:
-- [Node.js](https://nodejs.org/) (v14 or higher)
+- [Node.js](https://nodejs.org/) (v18 or higher)
 - [Nix Package Manager](https://nixos.org/download.html)
 
 ### Installation
@@ -79,7 +80,7 @@ beacon installed
 beacon remove python313
 
 # Push all installed packages to hub
-beacon pushlist
+beacon pushlist <projectName>
 ```
 
 ### Development Shell
@@ -87,6 +88,17 @@ beacon pushlist
 ```bash
 # Start a development shell
 beacon devVM
+```
+
+### API Server
+
+```bash
+# The CLI uses our hosted API by default
+# You can check the current server configuration
+beacon config:show
+
+# To use a different server
+beacon config:set-server https://your-custom-server.com
 ```
 
 ## 🏗️ Project Structure
@@ -103,13 +115,23 @@ beacon/
 
 ## 🛠️ Development
 
+If you want to contribute to the project:
+
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/beacon.git
+
+# Navigate to project directory
+cd beacon
+
+# Install dependencies
+npm install
 
 # Build the project
 npm run build
 
-# Run directly after building
-node dist/cli.js
+# Link for local development
+npm link
 ```
 
 ## 📝 Configuration
@@ -142,7 +164,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Report bugs by creating an [issue](https://github.com/yourusername/beacon/issues)
 - Join our [Discord community](https://discord.gg/your-invite)
-- Follow updates on [Twitter](https://twitter.com/your-handle)
 
 ## ⭐ Show your support
 
@@ -156,9 +177,9 @@ Made with ❤️ by [Your Name]
 
 ## 🌐 API Server
 
-Beacon cũng cung cấp API server với các endpoint sau:
+Beacon cung cấp API server với các endpoint sau:
 
-### Khởi động server
+### Khởi động server local
 
 ```bash
 # Sử dụng CLI command
@@ -166,19 +187,41 @@ beacon server
 
 # Với tùy chọn port và host
 beacon server --port 5000 --host 0.0.0.0
-
-# Hoặc sử dụng npm script
-npm run server
 ```
 
-### Cấu hình server
+### Deploy server lên cloud
 
-Bạn có thể cấu hình server bằng file `.env`:
+Bạn có thể deploy server lên các nền tảng cloud như Render, Railway hoặc Heroku:
 
-```
-PORT=5000
-HOST=0.0.0.0
-DATABASE_URL=mongodb://localhost:27017/beacon
+#### Deploy lên Render
+1. Fork repository này
+2. Đăng ký tài khoản tại [render.com](https://render.com)
+3. Tạo Web Service mới và kết nối với repository
+4. Cấu hình:
+   - Build Command: `npm install && npm run build`
+   - Start Command: `node dist/server.js`
+5. Thêm các biến môi trường từ file `.env`
+
+#### Deploy lên Railway
+1. Đăng ký tại [railway.app](https://railway.app)
+2. Tạo project mới và kết nối với GitHub repository
+3. Thêm các biến môi trường từ file `.env`
+
+#### Deploy lên Heroku
+1. Cài đặt Heroku CLI: `npm install -g heroku`
+2. Login: `heroku login`
+3. Tạo app: `heroku create suibeacon-api`
+4. Thêm biến môi trường: `heroku config:set KEY=VALUE`
+5. Deploy: `git push heroku main`
+
+### Cấu hình CLI để sử dụng server đã deploy
+
+```bash
+# Cấu hình server URL
+beacon config:set-server https://your-deployed-server.com
+
+# Xem cấu hình hiện tại
+beacon config:show
 ```
 
 ### Các endpoint có sẵn

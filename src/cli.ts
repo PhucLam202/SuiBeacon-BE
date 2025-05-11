@@ -18,6 +18,8 @@ import mongoose from "mongoose";
 import installQuickstart from "./command/quickstart.js";
 import path from 'path';
 import { fileURLToPath } from 'url';
+import os from 'os';
+import fs from 'fs';
 
 // Lấy __dirname trong ES modules
 const __filename = fileURLToPath(import.meta.url);

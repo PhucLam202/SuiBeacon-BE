@@ -59,7 +59,6 @@ async function pushPackageList(projectName: string, spinner: Ora,userAddress:str
     
     // Default wallet address for CLI usage
     const walletAddress = userAddress;
-    // const walletAddress = "0xc9b3863e6f8249dfbd6c559c3f530adfce1e2976b726848c37d550ebb90774fe";
     
     // STEP 6: Save to DataModel with both walletAddress and projectName
     try {

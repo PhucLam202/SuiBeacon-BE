@@ -3,6 +3,7 @@ import cors from "cors";
 import { Routes } from "./router/index.js";
 import connectDB from "./config/database.js";
 import dotenv from "dotenv";
+import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
@@ -10,9 +11,37 @@ async function startServer(port = process.env.PORT || 5000, host = '0.0.0.0') {
   const app = express();
   
   // Middleware
-  app.use(cors());
+  const corsOptions = {
+    origin: process.env.NODE_ENV === 'production' 
+      ? ['https://yourdomain.com', /\.yourdomain\.com$/] 
+      : '*',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  };
+  
+  app.use(cors(corsOptions));
+  
+  // Thêm middleware bảo mật cơ bản
+  app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    next();
+  });
+  
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  
+  // Thêm rate limiting
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 phút
+    max: 100, // giới hạn mỗi IP 100 request trong 15 phút
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+  
+  // Áp dụng cho tất cả các request
+  app.use(limiter);
   
   try {
     // Connect to database
