@@ -1,5 +1,5 @@
 import express from "express";
-import DisplayController from "../controller/displayController";
+import DisplayController from "../controller/displayController.js";
 const displayRouter = express.Router();
 const displayController = new DisplayController();
 

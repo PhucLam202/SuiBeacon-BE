@@ -4,7 +4,7 @@ import { exec } from "child_process";
 import ora from "ora";
 import { promisify } from "util";
 import { inspect } from "util";
-import PackageInfo from "../types/dataCli";
+import PackageInfo from "../types/dataCli.js";
 import mongoose from "mongoose";
 
 const execPromise = promisify(exec);

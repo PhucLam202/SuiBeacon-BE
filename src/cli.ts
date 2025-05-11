@@ -16,6 +16,12 @@ import connectDB from "./config/database.js";
 import login, { getLoggedInUser } from "./command/login.js";
 import mongoose from "mongoose";
 import installQuickstart from "./command/quickstart.js";
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Lấy __dirname trong ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Ensure database connection is established
 connectDB().catch((err) => {
@@ -175,6 +181,43 @@ program
     );
     
     console.log(chalk.yellow(`To set up an environment, use: beacon quickstart <environment>`));
+  });
+
+// Thêm command server vào CLI
+program
+  .command("server")
+  .description("Start the API server")
+  .option("-p, --port <port>", "Port to run server on", "3000")
+  .option("-h, --host <host>", "Host to bind server to", "localhost")
+  .action(async (options) => {
+    const spinner = ora({
+      text: chalk.blue("Starting API server..."),
+      spinner: "dots",
+    }).start();
+    
+    try {
+      // Import và khởi động server
+      const { default: startServer } = await import('./server.js');
+      await startServer(options.port, options.host);
+      
+      spinner.succeed(chalk.green(`API server running on http://${options.host}:${options.port}`));
+      console.log(chalk.cyan(`Press Ctrl+C to stop the server`));
+      
+      // Giữ tiến trình chạy
+      process.stdin.resume();
+      
+      // Xử lý khi người dùng nhấn Ctrl+C
+      process.on('SIGINT', () => {
+        console.log(chalk.yellow("\nStopping server..."));
+        mongoose.disconnect().then(() => {
+          console.log(chalk.green("Server stopped"));
+          process.exit(0);
+        });
+      });
+    } catch (error) {
+      spinner.fail(chalk.red(`Failed to start server: ${error}`));
+      process.exit(1);
+    }
   });
 
 // Run CLI

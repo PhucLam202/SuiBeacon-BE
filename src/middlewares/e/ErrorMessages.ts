@@ -1,4 +1,4 @@
-import { ErrorCode } from './ErrorCode';
+import { ErrorCode } from './ErrorCode.js';
 
 export const ErrorMessages: { [key in ErrorCode]: string } = {
   // General Errors

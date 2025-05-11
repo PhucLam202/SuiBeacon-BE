@@ -1,5 +1,5 @@
 import express from "express";
-import WalrusController from "../controller/walrusController";
+import WalrusController from "../controller/walrusController.js";
 const listpackageRouter = express.Router();
 const walrusController = new WalrusController();
 

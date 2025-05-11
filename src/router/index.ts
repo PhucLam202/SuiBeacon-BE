@@ -1,8 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import walrusRouter from "./walrusRouter";
-import listpackageRouter from "./listpackageRouter";
-import displayRouter from "./displayRouter";
+import walrusRouter from "./walrusRouter.js";
+import listpackageRouter from "./listpackageRouter.js";
+import displayRouter from "./displayRouter.js";
 
 export async function Routes(app: Express): Promise<Server> {
   // Register API routes

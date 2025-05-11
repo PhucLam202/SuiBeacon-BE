@@ -1,8 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { Routes } from "./router/index";
-import connectDB from './config/database';
+import { Routes } from "./router/index.js";
+import connectDB from './config/database.js';
 
 // Load environment variables
 dotenv.config();

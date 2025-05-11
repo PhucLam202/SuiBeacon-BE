@@ -153,3 +153,37 @@ Give a ⭐️ if this project helped you!
 <div align="center">
 Made with ❤️ by [Your Name]
 </div>
+
+## 🌐 API Server
+
+Beacon cũng cung cấp API server với các endpoint sau:
+
+### Khởi động server
+
+```bash
+# Sử dụng CLI command
+beacon server
+
+# Với tùy chọn port và host
+beacon server --port 5000 --host 0.0.0.0
+
+# Hoặc sử dụng npm script
+npm run server
+```
+
+### Cấu hình server
+
+Bạn có thể cấu hình server bằng file `.env`:
+
+```
+PORT=5000
+HOST=0.0.0.0
+DATABASE_URL=mongodb://localhost:27017/beacon
+```
+
+### Các endpoint có sẵn
+
+- `GET /health`: Kiểm tra trạng thái server
+- `GET /v1/walrus`: API Walrus
+- `GET /v1/listPackages`: Liệt kê packages
+- `GET /v1/display`: Hiển thị thông tin

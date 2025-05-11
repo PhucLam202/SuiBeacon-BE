@@ -1,8 +1,8 @@
 import { exec } from "child_process";
 import { promisify } from "util";
-import  listPackages  from "../command/list";
-import { AppError } from "../middlewares/e/AppError";
-import { ErrorCode } from "../middlewares/e/ErrorCode";
+import  listPackages  from "../command/list.js";
+import { AppError } from "../middlewares/e/AppError.js";
+import { ErrorCode } from "../middlewares/e/ErrorCode.js";
 const execPromise = promisify(exec);
 
 interface Package {
