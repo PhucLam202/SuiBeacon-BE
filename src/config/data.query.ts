@@ -1,6 +1,6 @@
-import DataModel, { IData } from '../models/DataModel';
-import Package from '../models/Package';
-import WalrusService from '../service/walrusService';
+import DataModel, { IData } from '../models/DataModel.js';
+import Package from '../models/Package.js';
+import WalrusService from '../service/walrusService.js';
 
 /** Create a new document */
 export async function create(walletAddress: string, blobId: string) {

@@ -1,8 +1,8 @@
 
 import { Request, Response, NextFunction } from "express";
-import { CustomExpress } from "../middlewares/app/customResponse";
-import WalrusService from "../service/walrusService";
-import * as DataQuery from '../config/data.query';
+import { CustomExpress } from "../middlewares/app/customResponse.js";
+import WalrusService from "../service/walrusService.js";
+import * as DataQuery from '../config/data.query.js';
 
 class DisplayController {
   private walrusService: WalrusService;

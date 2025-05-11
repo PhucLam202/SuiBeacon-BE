@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 import boxen from "boxen";
 import chalk from "chalk";
 import ora, { Ora } from "ora";
-import { PushResponse } from "../types/pushCli";
+import { PushResponse } from "../types/pushCli.js";
 import listPackages from "./list.js";
 import WalrusService from "../service/walrusService.js";
 import DataModel from "../models/DataModel.js";
 import Package from "../models/Package.js";
 import PushHistory from "../models/PushHistory.js";
-import connectDB, { isConnected } from "../config/database.js";
+import connectDB from "../config/database.js";
 
 async function pushPackageList(projectName: string, spinner: Ora,userAddress:string) {
   //Temporarily fix the hard address, later we will redo the auth function to get the address from FE and save it automatically.
@@ -19,12 +19,7 @@ async function pushPackageList(projectName: string, spinner: Ora,userAddress:str
   // -> BE saves it to a config file or DB
   // -> then the push command will automatically add it to each user. 
   try {
-    // STEP 0: Ensure database connection
-    if (!isConnected()) {
-      spinner.text = chalk.blue("Connecting to database...");
-      await connectDB();
-    }
-    
+
     // STEP 1: Validate project name
     if (!projectName) {
       spinner.fail(chalk.red("Project name is required"));
@@ -64,7 +59,6 @@ async function pushPackageList(projectName: string, spinner: Ora,userAddress:str
     
     // Default wallet address for CLI usage
     const walletAddress = userAddress;
-    // const walletAddress = "0xc9b3863e6f8249dfbd6c559c3f530adfce1e2976b726848c37d550ebb90774fe";
     
     // STEP 6: Save to DataModel with both walletAddress and projectName
     try {
@@ -141,7 +135,7 @@ async function pushPackageList(projectName: string, spinner: Ora,userAddress:str
 
     // Display detailed package information
     const packageList = data.payload.packages
-      .map((pkg) => `${chalk.bold.green(pkg.name)} ${chalk.blue(`v${pkg.version}`)}`)
+      .map((pkg: { name: string; version: string }) => `${chalk.bold.green(pkg.name)} ${chalk.blue(`v${pkg.version}`)}`)
       .join("\n");
 
     console.log(

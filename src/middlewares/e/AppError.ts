@@ -2,7 +2,7 @@
 
 import { StatusCodes } from "http-status-codes";
 
-import { ErrorCode } from "../e/ErrorCode";
+import { ErrorCode } from "../e/ErrorCode.js";
 
 // interface IAppErrorFactory {
 //     newError(errCode: ErrorCode, httpCode: StatusCodes, msg: string): AppError;

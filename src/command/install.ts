@@ -2,7 +2,7 @@ import { exec } from 'child_process';
 import chalk from 'chalk';
 import ora, { Ora } from 'ora';
 import { promisify } from 'util';
-import PackageInfo from '../types/dataCli';
+import PackageInfo from '../types/dataCli.js';
 
 // Promisify exec to use async/await
 const execPromise = promisify(exec);

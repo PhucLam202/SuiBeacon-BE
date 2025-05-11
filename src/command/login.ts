@@ -3,7 +3,7 @@ import ora, { Ora } from "ora";
 import fs from "fs";
 import path from "path";
 import os from "os";
-import { UserCredentials } from "../types/loginCli";
+import { UserCredentials } from "../types/loginCli.js";
 
 const CONFIG_DIR = path.join(os.homedir(), '.beacon');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');

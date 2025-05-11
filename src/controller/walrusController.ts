@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import WalrusService from "../service/walrusService";
-import { CustomExpress } from "../middlewares/app/customResponse";
+import WalrusService from "../service/walrusService.js";
+import { CustomExpress } from "../middlewares/app/customResponse.js";
 import ListPackagesService, {
   ListPackagesService as ListPackagesServiceClass,
-} from "../service/listPackagesService";
-import PackageInfo from "../types/dataCli";
-import Package from '../models/Package';
-import PushHistory from '../models/PushHistory';
-import DataModel from '../models/DataModel';
+} from "../service/listPackagesService.js";
+import PackageInfo from "../types/dataCli.js";
+import Package from '../models/Package.js';
+import PushHistory from '../models/PushHistory.js';
+import DataModel from '../models/DataModel.js';
 class WalrusController {
   private walrusService: WalrusService;
   private listPackagesService: ListPackagesServiceClass;
