@@ -20,33 +20,34 @@ A powerful CLI tool powered by Nix for seamless package management.
 - 📋 **Package Listing** - View all installed packages
 - 🛠️ **Dev Shell Support** - Isolated development environments
 - ⚡ **Cache System** - Lightning-fast package searches
+- 🌐 **API Server** - Access package data via REST API
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 Before you begin, ensure you have the following installed:
-- [Node.js](https://nodejs.org/) (v14 or higher)
-- [pnpm](https://pnpm.io/) (v6 or higher)
+- [Node.js](https://nodejs.org/) (v18 or higher)
 - [Nix Package Manager](https://nixos.org/download.html)
 
 ### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/beacon.git
+# Install from npm
+npm install -g suibeacon
 
-# Navigate to project directory
+# Or clone the repository
+git clone https://github.com/yourusername/beacon.git
 cd beacon
 
 # Install dependencies
-pnpm install
+npm install
 
 # Build the project
-pnpm build
+npm run build
 
 # Install CLI globally
-pnpm link --global
+npm link
 ```
 
 ## 📚 Usage Guide
@@ -68,7 +69,7 @@ beacon --version
 beacon list
 
 # Search for specific packages
-beacon list python
+beacon search python
 
 # Install a package with specific version
 beacon install python313 3.13.0
@@ -78,6 +79,9 @@ beacon installed
 
 # Remove a package
 beacon remove python313
+
+# Push all installed packages to hub
+beacon push <projectName>
 ```
 
 ### Development Shell
@@ -87,6 +91,23 @@ beacon remove python313
 beacon devVM
 ```
 
+### API Server
+
+```bash
+# Start the API server
+beacon server
+
+# Start with custom port and host
+beacon server --port 5000 --host 0.0.0.0
+
+# The CLI uses our hosted API by default
+# You can check the current server configuration
+beacon config:show
+
+# To use a different server
+beacon config:set-server https://your-custom-server.com
+```
+
 ## 🏗️ Project Structure
 
 ```
@@ -94,20 +115,33 @@ beacon/
 ├── dist/           # Compiled JavaScript code
 ├── src/            # TypeScript source files
 │   ├── cli.ts      # Main CLI implementation
-│   └── utils/      # Utility functions
+│   ├── server.ts   # API server implementation
+│   ├── command/    # CLI commands
+│   ├── router/     # API routes
+│   └── service/    # Business logic
 ├── package.json    # Project configuration
 └── tsconfig.json   # TypeScript settings
 ```
 
 ## 🛠️ Development
 
+If you want to contribute to the project:
+
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/beacon.git
+
+# Navigate to project directory
+cd beacon
+
+# Install dependencies
+npm install
 
 # Build the project
-pnpm run build
+npm run build
 
-# Run directly after building
-node dist/cli.js
+# Link for local development
+npm link
 ```
 
 ## 📝 Configuration
@@ -115,6 +149,7 @@ node dist/cli.js
 The CLI uses several configuration files:
 - `packages-cache.json` - Stores package information for faster searches
 - `flake.nix` - Nix configuration for development shell
+- `.beacon-config.json` - User configuration for API server URL
 
 ## 📜 License
 
@@ -136,11 +171,75 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
    - Check your system permissions
    - Verify package name and version
 
+3. **API Connection Issues**
+   ```bash
+   # Check current server configuration
+   beacon config:show
+   
+   # Reset to default server
+   beacon config:set-server https://suibeacon-be.onrender.com
+   ```
+
+## 🌐 API Server
+
+Beacon provides an API server with the following endpoints:
+
+### Starting Local Server
+
+```bash
+# Start the API server
+beacon server
+
+# With custom port and host
+beacon server --port 5000 --host 0.0.0.0
+```
+
+### Deploying to Cloud
+
+You can deploy the server to cloud platforms like Render, Railway, or Heroku:
+
+#### Deploy to Render
+1. Fork this repository
+2. Sign up at [render.com](https://render.com)
+3. Create a new Web Service and connect to your repository
+4. Configure:
+   - Build Command: `npm install && npm run build`
+   - Start Command: `node dist/server.js`
+5. Add environment variables from `.env.example`
+
+#### Deploy to Railway
+1. Sign up at [railway.app](https://railway.app)
+2. Create a new project and connect to your GitHub repository
+3. Add environment variables from `.env.example`
+
+#### Deploy to Heroku
+1. Install Heroku CLI: `npm install -g heroku`
+2. Login: `heroku login`
+3. Create app: `heroku create suibeacon-api`
+4. Add environment variables: `heroku config:set KEY=VALUE`
+5. Deploy: `git push heroku main`
+
+### Configuring CLI to Use Deployed Server
+
+```bash
+# Configure server URL
+beacon config:set-server https://your-deployed-server.com
+
+# View current configuration
+beacon config:show
+```
+
+### Available Endpoints
+
+- `GET /health`: Check server status
+- `GET /v1/walrus`: Walrus API
+- `GET /v1/listPackages`: List packages
+- `GET /v1/display`: Display information
+
 ## 📮 Support
 
 - Report bugs by creating an [issue](https://github.com/yourusername/beacon/issues)
 - Join our [Discord community](https://discord.gg/your-invite)
-- Follow updates on [Twitter](https://twitter.com/your-handle)
 
 ## ⭐ Show your support
 

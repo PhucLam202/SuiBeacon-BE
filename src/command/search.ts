@@ -3,12 +3,12 @@ import chalk from "chalk";
 import { exec } from "child_process";
 import { Ora } from "ora";
 import { promisify } from "util";
-import PackageInfo from "../types/dataCli";
+import PackageInfo from "../types/dataCli.js";
 
-// Promisify exec để sử dụng async/await
+// Promisify exec to use async/await
 const execPromise = promisify(exec);
 
-// Hàm kiểm tra xem Nix đã được cài đặt chưa
+// Function to check if Nix is installed
 async function checkNixInstalled(): Promise<void> {
     try {
         await execPromise("nix --version");
@@ -20,7 +20,7 @@ async function checkNixInstalled(): Promise<void> {
     }
 }
 
-// Hàm tính điểm relevance cho gói dựa trên search term
+// Function to calculate relevance score for packages based on search term
 function calculateRelevance(pkgPath: string, info: any, searchTerm: string): number {
     const lowerSearchTerm = searchTerm.toLowerCase();
     const name = pkgPath.split(".").pop()?.toLowerCase() || "";
@@ -29,19 +29,19 @@ function calculateRelevance(pkgPath: string, info: any, searchTerm: string): num
 
     let score = 0;
 
-    // Ưu tiên gói có tên khớp chính xác hoặc gần giống
+    // Prioritize packages with exact or similar name matches
     if (name === lowerSearchTerm || pname === lowerSearchTerm) {
         score += 100;
     } else if (name.includes(lowerSearchTerm) || pname.includes(lowerSearchTerm)) {
         score += 50;
     }
 
-    // Ưu tiên gói ở top-level (không nằm trong python3Packages)
+    // Prioritize top-level packages (not in python3Packages)
     if (!fullPath.includes("python3packages")) {
         score += 20;
     }
 
-    // Ưu tiên các phiên bản Python (e.g., python3, python310)
+    // Prioritize Python versions (e.g., python3, python310)
     if (/^python\d+$/.test(name) || /^python\d+full$/.test(name) || /^python\d+minimal$/.test(name)) {
         score += 30;
     }
@@ -51,15 +51,15 @@ function calculateRelevance(pkgPath: string, info: any, searchTerm: string): num
 
 async function searchAvailablePackages(search?: string, spinner?: Ora) {
     try {
-        // Kiểm tra Nix trước khi chạy lệnh
+        // Check if Nix is installed before running commands
         await checkNixInstalled();
 
-        // Hiển thị thông báo bắt đầu tìm kiếm
+        // Display search start message
         if (spinner) {
             spinner.start(chalk.blue(`Searching packages${search ? ` for "${search}"` : ""}...`));
         }
 
-        // Nếu không có từ khóa tìm kiếm, trả về thông báo
+        // If no search term provided, return a message
         if (!search) {
             if (spinner) {
                 spinner.succeed(chalk.green("✅ Please provide a search term."));
@@ -68,23 +68,23 @@ async function searchAvailablePackages(search?: string, spinner?: Ora) {
             return;
         }
 
-        // Thoát các ký tự đặc biệt trong từ khóa tìm kiếm để tránh lỗi shell
+        // Escape special characters in search term to avoid shell errors
         const escapedSearch = search.replace(/'/g, "'\\''");
 
-        // Gọi nix search với từ khóa, bật experimental features và tăng maxBuffer
+        // Call nix search with the term, enable experimental features and increase maxBuffer
         if (spinner) {
-            spinner.text = chalk.blue(`Running nix search for "${search}"...`);
+            spinner.text = chalk.blue(`Running search for "${search}"...`);
         }
         const { stdout } = await execPromise(
             `nix --extra-experimental-features "nix-command flakes" search nixpkgs '${escapedSearch}' --json --no-update-lock-file 2>/dev/null`,
             { maxBuffer: 10 * 1024 * 1024 } // 10MB buffer
         );
 
-        // Phân tích kết quả JSON từ nix search
+        // Parse JSON results from nix search
         const searchResults: Record<string, any> = JSON.parse(stdout);
         const packages: Record<string, PackageInfo> = {};
 
-        // Chuyển đổi kết quả thành định dạng PackageInfo
+        // Convert results to PackageInfo format
         for (const [pkgPath, info] of Object.entries(searchResults)) {
             packages[pkgPath] = {
                 name: pkgPath.split(".").pop() || pkgPath,
@@ -96,30 +96,30 @@ async function searchAvailablePackages(search?: string, spinner?: Ora) {
             };
         }
 
-        // Lọc và sắp xếp gói theo relevance
+        // Filter and sort packages by relevance
         const filteredPackages = Object.entries(packages)
             .map(([pkgPath, info]) => ({
                 pkgPath,
                 info,
                 relevance: calculateRelevance(pkgPath, info, search),
             }))
-            .filter(({ relevance }) => relevance > 0) // Chỉ giữ các gói có relevance
-            .sort((a, b) => b.relevance - a.relevance) // Sắp xếp giảm dần theo relevance
-            .slice(0, 30) // Giới hạn 30 gói
+            .filter(({ relevance }) => relevance > 0) // Only keep packages with relevance
+            .sort((a, b) => b.relevance - a.relevance) // Sort in descending order by relevance
+            .slice(0, 30) // Limit to 30 packages
             .map(({ pkgPath, info }) => [pkgPath, info] as [string, PackageInfo]);
 
-        // Hiển thị thông báo thành công
+        // Display success message
         if (spinner) {
             spinner.succeed(chalk.green("✅ Packages found:"));
         }
 
-        // Nếu không tìm thấy gói, thông báo
+        // If no packages found, display a message
         if (filteredPackages.length === 0) {
             console.log(chalk.yellow("No packages found."));
             return;
         }
 
-        // Định dạng kết quả hiển thị
+        // Format display results
         const formattedResults = filteredPackages
             .map(([pkgPath, info]) => {
                 const name = pkgPath.split(".").pop();
@@ -127,7 +127,7 @@ async function searchAvailablePackages(search?: string, spinner?: Ora) {
             })
             .join("\n");
 
-        // Hiển thị kết quả trong boxen
+        // Display results in boxen
         console.log(
             boxen(`Available packages:\n\n${formattedResults}`, {
                 padding: 1,

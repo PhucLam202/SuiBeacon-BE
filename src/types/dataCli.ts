@@ -1,4 +1,3 @@
-// Thêm interface định nghĩa kiểu dữ liệu cho package
 interface PackageInfo {
     name: string;
     pname: string;

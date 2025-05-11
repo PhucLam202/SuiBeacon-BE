@@ -4,10 +4,11 @@ import { exec } from "child_process";
 import ora from "ora";
 import { promisify } from "util";
 import { inspect } from "util";
+import PackageInfo from "../types/dataCli.js";
+import mongoose from "mongoose";
 
 const execPromise = promisify(exec);
-
-async function listPackages() {
+async function listPackages(): Promise<PackageInfo[]> {
   const spinner = ora({
     text: chalk.blue("Fetching installed packages..."),
     spinner: "dots",
@@ -19,38 +20,42 @@ async function listPackages() {
       { maxBuffer: 10 * 1024 * 1024 }
     );
 
-    // Pretty‑print raw JSON
-    console.log(
-      chalk.gray("Debug: Raw nix profile list output:"),
-      inspect(JSON.parse(stdout), { depth: 2, colors: true, compact: false })
-    );
-
     // Parse
     const profileData = JSON.parse(stdout);
-    console.log(
-      chalk.gray("Debug: Parsed profile data:"),
-      inspect(profileData, { depth: 4, colors: true, compact: false })
-    );
+    // console.log(
+    //   chalk.gray("Debug: Parsed profile data:"),
+    //   inspect(profileData, { depth: 4, colors: true, compact: false })
+    // );
 
-    // Lấy elements đúng cách
+    // Get elements correctly
     const elems = profileData.elements ?? {};
     const pkgNames = Object.keys(elems);
 
     if (pkgNames.length === 0) {
       spinner.succeed();
       console.log(chalk.yellow("No packages installed or profile is empty."));
-      return;
+      return [];
     }
 
-    // Format packages
-    const formatted = pkgNames
-      .map(name => {
-        const info = elems[name];
-        const storePath = info.storePaths[0].split("/").pop() || "";
-        const versionMatch = storePath.match(/-(\d+\.\d+\.\d+[^-]*)$/);
-        const version = versionMatch ? versionMatch[1] : "unknown";
-        return `${chalk.bold.green(name)} ${chalk.blue(`v${version}`)}`;
-      })
+    // Create packages array
+    const packages: PackageInfo[] = pkgNames.map(name => {
+      const info = elems[name];
+      const storePath = info.storePaths[0].split("/").pop() || "";
+      const versionMatch = storePath.match(/-(\d+\.\d+\.\d+[^-]*)$/);
+      const version = versionMatch ? versionMatch[1] : "unknown";
+      return {
+        name,
+        version,
+        pname: name,
+        description: "",
+        license: "unknown",
+        type: "installed"
+      };
+    });
+
+    // Format packages for display
+    const formatted = packages
+      .map(pkg => `${chalk.bold.green(pkg.name)} ${chalk.blue(`v${pkg.version}`)}`)
       .join("\n");
 
     spinner.succeed(chalk.green("✅ Installed packages fetched."));
@@ -62,8 +67,12 @@ async function listPackages() {
         borderColor: "green",
       })
     );
+    
+    return packages;
   } catch (err: any) {
-    spinner.fail(chalk.red(`❌ Error fetching installed packages: ${err.message}`));
+    spinner.fail(
+      chalk.red(`❌ Error fetching installed packages: ${err.message}`)
+    );
     console.error(chalk.yellow("Full error details:"), err);
     console.error(
       chalk.yellow(
@@ -77,6 +86,8 @@ async function listPackages() {
         ].join("\n")
       )
     );
+    
+    return [];
   }
 }
 
