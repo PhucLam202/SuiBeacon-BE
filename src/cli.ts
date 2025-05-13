@@ -16,16 +16,14 @@ import connectDB from "./config/database.js";
 import login, { getLoggedInUser } from "./command/login.js";
 import mongoose from "mongoose";
 import installQuickstart from "./command/quickstart.js";
-import path from 'path';
-import { fileURLToPath } from 'url';
-import os from 'os';
-import fs from 'fs';
+import path from "path";
+import { fileURLToPath } from "url";
+import os from "os";
+import fs from "fs";
 
-// Lấy __dirname trong ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Ensure database connection is established
 connectDB().catch((err) => {
   console.error(chalk.red("Failed to connect to database:"), err.message);
   process.exit(1);
@@ -41,7 +39,7 @@ program
 program
   .command("install <package> [version]")
   .description("Install a package with optional version")
-  .action((pkg, version) => {
+  .action(async (pkg, version) => {
     const spinner = ora({
       text: chalk.blue(
         `Installing ${pkg}${version ? ` version ${version}` : ""}`
@@ -49,37 +47,40 @@ program
       spinner: "dots",
     }).start();
 
-    installPackage(pkg, spinner, version);
+    await installPackage(pkg, spinner, version);
+    process.exit(0);
   });
 
 // List installed packages command
 program
   .command("list")
   .description("List all installed packages")
-  .action(() => {
-    console.log(chalk.inverse("Fetching installed packages..."));
-    listPackages();
+  .action(async () => {
+    await listPackages();
+    process.exit(0);
   });
 
 // Remove package command
 program
-  .command("remove <package>")
-  .description("remove a package")
-  .action((pkg: string) => {
-    console.log(chalk.blue(`Removing ${pkg}`));
-    removePackage(pkg);
+  .command("remove <packages...>")
+  .description("Remove one or more packages")
+  .action(async (packages: string[]) => {
+    console.log(chalk.blue(`Removing packages: ${packages.join(', ')}`));
+    await removePackage(packages.join(' '));
+    process.exit(0);
   });
 
 // Search command
 program
   .command("search [search]")
   .description("Search available packages")
-  .action((search?: string) => {
+  .action(async (search?: string) => {
     const spinner = ora({
       text: chalk.blue("Searching for packages..."),
       spinner: "dots",
     }).start();
-    searchAvailablePackages(search, spinner);
+    await searchAvailablePackages(search, spinner);
+    process.exit(0);
   });
 
 // program
@@ -89,13 +90,15 @@ program
 //     console.log(chalk.blue("Starting development shell..."));
 //     startDevelopmentShell();
 //   });
+
 // Update command
 program
   .command("update <package>")
   .description("Update a package")
-  .action((pkg: string) => {
+  .action(async (pkg: string) => {
     console.log(chalk.blue(`Updating ${pkg}...`));
-    updatePackage(pkg);
+    await updatePackage(pkg);
+    process.exit(0);
   });
 function startDevelopmentShell() {
   const nixShell = spawn("nix", ["develop"], {
@@ -103,11 +106,10 @@ function startDevelopmentShell() {
   });
 }
 
-// New push command (no wallet required)
 program
   .command("push <projectName>")
   .description("Push all installed packages to hub")
-  .action((projectName: string) => {
+  .action(async (projectName: string) => {
     const spinner = ora({
       text: chalk.blue("Pushing package list to hub..."),
       spinner: "dots",
@@ -115,64 +117,72 @@ program
 
     const user = getLoggedInUser();
     if (!user) {
-      spinner.fail(chalk.red("You need to login first. Use 'beacon login <userAddress>'"));
+      spinner.fail(
+        chalk.red("You need to login first. Use 'beacon login <userAddress>'")
+      );
+      process.exit(1);
       return;
     }
 
-    pushPackageList(projectName, spinner, user.userAddress);
+    await pushPackageList(projectName, spinner, user.userAddress);
+    process.exit(0);
   });
-
 
 program
   .command("pull <url>")
   .description("Pull and install a package list from a remote URL")
-  .action((url) => {
+  .action(async (url) => {
     const spinner = ora({
       text: chalk.blue("Preparing to pull packages from remote..."),
       spinner: "dots",
     }).start();
 
-    pullFromWalrus(url, spinner);
+    await pullFromWalrus(url, spinner);
+    process.exit(0);
   });
 
 // Login command
 program
   .command("login <userAddress>")
   .description("Login with your user address")
-  .action((userAddress: string) => {
+  .action(async (userAddress: string) => {
     const spinner = ora({
       text: chalk.blue(`Logging in with address: ${userAddress}`),
       spinner: "dots",
     }).start();
 
-    login(userAddress, spinner);
+    await login(userAddress, spinner);
+    process.exit(0);
   });
 
-// Thêm command quickstart
+// add command quickstart
 program
   .command("quickstart <environment>")
-  .description("Quickly install all packages needed for a specific development environment")
-  .action((environment: string) => {
+  .description(
+    "Quickly install all packages needed for a specific development environment"
+  )
+  .action(async (environment: string) => {
     const spinner = ora({
       text: chalk.blue(`Preparing ${environment} development environment...`),
       spinner: "dots",
     }).start();
 
-    installQuickstart(environment, spinner);
+    await installQuickstart(environment, spinner);
+    process.exit(0);
   });
 
-// Thêm command để liệt kê các quickstart có sẵn
+// add command to list all theme eviroment 
 program
   .command("environments")
   .description("List all available development environments")
   .action(() => {
-    console.log(chalk.inverse("Available development environments:"));
-    
     console.log(
       boxen(
-        `${chalk.bold.green("sui")} - SUI blockchain development environment\n` +
-        `${chalk.bold.green("node")} - Node.js development environment\n` +
-        `${chalk.bold.green("rust")} - Rust development environment`,
+        `${chalk.bold.green(
+          "sui"
+        )} - SUI blockchain development environment\n` +
+          `${chalk.bold.green("node")} - Node.js development environment\n` +
+          `${chalk.bold.green("rust")} - Rust development environment`,
         {
           padding: 1,
           margin: 1,
@@ -181,11 +191,16 @@ program
         }
       )
     );
-    
-    console.log(chalk.yellow(`To set up an environment, use: beacon quickstart <environment>`));
+
+    console.log(
+      chalk.yellow(
+        `To set up an environment, use: beacon quickstart <environment>`
+      )
+    );
+    process.exit(0);
   });
 
-// Thêm command server vào CLI
+// add command server to CLI
 program
   .command("server")
   .description("Start the API server")
@@ -196,20 +211,21 @@ program
       text: chalk.blue("Starting API server..."),
       spinner: "dots",
     }).start();
-    
+
     try {
-      // Import và khởi động server
-      const { default: startServer } = await import('./server.js');
+      const { default: startServer } = await import("./server.js");
       await startServer(options.port, options.host);
-      
-      spinner.succeed(chalk.green(`API server running on http://${options.host}:${options.port}`));
+
+      spinner.succeed(
+        chalk.green(
+          `API server running on http://${options.host}:${options.port}`
+        )
+      );
       console.log(chalk.cyan(`Press Ctrl+C to stop the server`));
-      
-      // Giữ tiến trình chạy
+
       process.stdin.resume();
-      
-      // Xử lý khi người dùng nhấn Ctrl+C
-      process.on('SIGINT', () => {
+
+      process.on("SIGINT", () => {
         console.log(chalk.yellow("\nStopping server..."));
         mongoose.disconnect().then(() => {
           console.log(chalk.green("Server stopped"));

@@ -62,7 +62,7 @@ async function searchAvailablePackages(search?: string, spinner?: Ora) {
         // If no search term provided, return a message
         if (!search) {
             if (spinner) {
-                spinner.succeed(chalk.green("✅ Please provide a search term."));
+                spinner.succeed(chalk.green("Please provide a search term."));
             }
             console.log(chalk.yellow("Usage: beacon search <term>"));
             return;
@@ -108,11 +108,6 @@ async function searchAvailablePackages(search?: string, spinner?: Ora) {
             .slice(0, 30) // Limit to 30 packages
             .map(({ pkgPath, info }) => [pkgPath, info] as [string, PackageInfo]);
 
-        // Display success message
-        if (spinner) {
-            spinner.succeed(chalk.green("✅ Packages found:"));
-        }
-
         // If no packages found, display a message
         if (filteredPackages.length === 0) {
             console.log(chalk.yellow("No packages found."));
@@ -138,7 +133,7 @@ async function searchAvailablePackages(search?: string, spinner?: Ora) {
         );
     } catch (err: any) {
         if (spinner) {
-            spinner.fail(chalk.red(`❌ Error: ${err.message}`));
+            spinner.fail(chalk.red(`Error: ${err.message}`));
         }
         console.error(chalk.yellow("Full error details:"), err);
         console.error(

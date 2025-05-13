@@ -67,7 +67,7 @@ async function installPackage(pkg: string, spinner: Ora, requestedVersion?: stri
         });
 
         if (!pkgEntry) {
-            spinner.fail(chalk.red(`❌ Package ${pkg}${cleanVersion ? ` version ${cleanVersion}` : ''} not found in nixpkgs`));
+            spinner.fail(chalk.red(`Package ${pkg}${cleanVersion ? ` version ${cleanVersion}` : ''} not found in nixpkgs`));
             return;
         }
 
@@ -97,13 +97,12 @@ async function installPackage(pkg: string, spinner: Ora, requestedVersion?: stri
                     reject(new Error(stderr));
                     return;
                 }
-                spinner.succeed(chalk.green(`Successfully installed ${pkg} version ${packageInfo.version}`));
                 resolve(stdout);
             });
         });
 
     } catch (err: any) {
-        spinner.fail(chalk.red(`❌ Error: ${err.message}`));
+        spinner.fail(chalk.red(`Error: ${err.message}`));
         console.error(chalk.yellow("Full error details:"), err);
         console.error(
             chalk.yellow(
