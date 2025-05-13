@@ -10,7 +10,6 @@ import mongoose from "mongoose";
 const execPromise = promisify(exec);
 async function listPackages(): Promise<PackageInfo[]> {
   const spinner = ora({
-    text: chalk.blue("Fetching installed packages..."),
     spinner: "dots",
   }).start();
 
@@ -22,10 +21,6 @@ async function listPackages(): Promise<PackageInfo[]> {
 
     // Parse
     const profileData = JSON.parse(stdout);
-    // console.log(
-    //   chalk.gray("Debug: Parsed profile data:"),
-    //   inspect(profileData, { depth: 4, colors: true, compact: false })
-    // );
 
     // Get elements correctly
     const elems = profileData.elements ?? {};
@@ -41,8 +36,19 @@ async function listPackages(): Promise<PackageInfo[]> {
     const packages: PackageInfo[] = pkgNames.map(name => {
       const info = elems[name];
       const storePath = info.storePaths[0].split("/").pop() || "";
-      const versionMatch = storePath.match(/-(\d+\.\d+\.\d+[^-]*)$/);
-      const version = versionMatch ? versionMatch[1] : "unknown";
+      
+      const versionMatch = storePath.match(/-(\d+[\.\d]*[a-z0-9\-]*)$/);
+      
+      let version = "unknown";
+      if (versionMatch) {
+        version = versionMatch[1];
+      } else {
+        const nameVersionMatch = name.match(/(\d+[\.\d]*[a-z0-9\-]*)$/);
+        if (nameVersionMatch) {
+          version = nameVersionMatch[1];
+        }
+      }
+      
       return {
         name,
         version,
@@ -57,8 +63,6 @@ async function listPackages(): Promise<PackageInfo[]> {
     const formatted = packages
       .map(pkg => `${chalk.bold.green(pkg.name)} ${chalk.blue(`v${pkg.version}`)}`)
       .join("\n");
-
-    spinner.succeed(chalk.green("✅ Installed packages fetched."));
     console.log(
       boxen(`Installed packages:\n\n${formatted}`, {
         padding: 1,
@@ -71,7 +75,7 @@ async function listPackages(): Promise<PackageInfo[]> {
     return packages;
   } catch (err: any) {
     spinner.fail(
-      chalk.red(`❌ Error fetching installed packages: ${err.message}`)
+      chalk.red(`Error fetching installed packages: ${err.message}`)
     );
     console.error(chalk.yellow("Full error details:"), err);
     console.error(
