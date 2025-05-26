@@ -1,6 +1,6 @@
 {
   "name": "suibeacon",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "A basic CLI tool for downloading files",
   "main": "dist/cli.js",
   "bin": {
@@ -10,10 +10,10 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "start": "node dist/server.js",
-    "dev": "nodemon --ext ts,js,json --exec 'tsx src/server.ts'"
+    "dev": "nodemon --ext ts,js,json --exec \"tsx src/server.ts\""
   },
   "files": [
-    "dist",    
+    "dist",
     ".env.example"
   ],
   "publishConfig": {
@@ -26,7 +26,7 @@
   "dependencies": {
     "@mysten/sui": "^1.28.0",
     "@mysten/wallet-standard": "^0.14.5",
-    "@mysten/walrus": "^0.0.17",
+    "@mysten/walrus": "^0.0.21",
     "boxen": "^8.0.1",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
@@ -36,6 +36,7 @@
     "express-rate-limit": "^7.5.0",
     "http-status-codes": "^2.3.0",
     "mongoose": "^8.14.0",
+    "multer": "^2.0.0",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.1.9",
     "ora": "^8.1.1"
@@ -44,6 +45,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/mongoose": "^5.11.96",
+    "@types/multer": "^1.4.12",
     "@types/node": "^22.10.2",
     "@types/node-fetch": "^2.6.12",
     "pnpm": "^8.0.0",
@@ -54,7 +56,7 @@
   "engines": {
     "node": ">=18.0.0"
   },
-   "keywords": [
+  "keywords": [
     "cli",
     "package-manager",
     "sui",

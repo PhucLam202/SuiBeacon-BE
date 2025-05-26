@@ -37,7 +37,7 @@ async function installQuickstart(quickstartName: string, spinner: Ora) {
       }).start();
 
       try {
-        await installPackage(pkg.name, packageSpinner, pkg.version !== "latest" ? pkg.version : undefined);
+        await installPackage(pkg.name, packageSpinner, pkg.version !== "latest" ? pkg.version : undefined, pkg.flakeUrl);
       } catch (err) {
         packageSpinner.fail(chalk.red(`Failed to install ${pkg.name}`));
         console.error(err);

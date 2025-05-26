@@ -1,7 +1,7 @@
-
 interface Package {
   name: string;
   version: string;
+  flakeUrl?: string;
 }
 
 export interface Quickstarts {
@@ -18,10 +18,15 @@ export const quickstarts: Quickstarts = {
     { name: "pkg-config", version: "latest" },
     { name: "clang", version: "latest" },
     { name: "postgresql", version: "latest" },
+    {
+      name: "sui",
+      version: "latest",
+      flakeUrl: "github:SmolPatches/nixpkgs/pack-req/patched-sui",
+    },
   ],
   node: [
     { name: "nodejs_23", version: "latest" },
     { name: "yarn", version: "latest" },
-    { name: "git", version: "latest" }
+    { name: "git", version: "latest" },
   ],
 };

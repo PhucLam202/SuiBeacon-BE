@@ -68,7 +68,6 @@ async function pushPackageList(projectName: string, spinner: Ora,userAddress:str
         createdAt: new Date()
       });
       
-      console.log(chalk.gray("✓ Data saved to DataModel"));
     } catch (dbError: any) {
       console.error("Error saving to DataModel:", dbError);
       // Continue execution even if database save fails
@@ -102,7 +101,7 @@ async function pushPackageList(projectName: string, spinner: Ora,userAddress:str
       await PushHistory.create({
         walletAddress: walletAddress,
         blobId,
-        packageCount: packages.length,
+        packageCoqt: packages.length,
         source: "beacon-cli",
         createdAt: new Date()
       });

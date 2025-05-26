@@ -1,3 +1,4 @@
+import { createServer } from 'http';
 import express from "express";
 import cors from "cors";
 import { Routes } from "./router/index.js";
@@ -15,13 +16,14 @@ async function startServer(port = process.env.PORT || 5000, host = '0.0.0.0') {
     origin: process.env.NODE_ENV === 'production' 
       ? ['https://yourdomain.com', /\.yourdomain\.com$/] 
       : '*',
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'wallet-address'],
+    credentials: true
   };
   
   app.use(cors(corsOptions));
   
-  // Thêm middleware bảo mật cơ bản
+  // Basic security middleware
   app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
@@ -32,15 +34,15 @@ async function startServer(port = process.env.PORT || 5000, host = '0.0.0.0') {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   
-  // Thêm rate limiting
+  // Add rate limiting
   const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 phút
-    max: 100, // giới hạn mỗi IP 100 request trong 15 phút
+    windowMs: 15 * 60 * 1000,
+    max: 100, 
     standardHeaders: true,
     legacyHeaders: false,
   });
   
-  // Áp dụng cho tất cả các request
+  // Apply to all requests
   app.use(limiter);
   
   try {
@@ -49,12 +51,13 @@ async function startServer(port = process.env.PORT || 5000, host = '0.0.0.0') {
     console.log("Connected to database");
     
     // Initialize routes
-    const httpServer = await Routes(app);
+    const httpServer = createServer(app);
+    await Routes(app);
     
     // Start server
     httpServer.listen(Number(port), host, () => {
-      console.log(`Server running on port ${port}`);
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`Server running at http://${host}:${port}`);
+      console.log(`Health check available at http://localhost:${port}/health`);
     });
     
     // Handle graceful shutdown
@@ -73,9 +76,13 @@ async function startServer(port = process.env.PORT || 5000, host = '0.0.0.0') {
   }
 }
 
-// If this file is run directly
-if (process.argv[1] === import.meta.url || process.argv[1].endsWith('server.js')) {
-  startServer();
+// ES Module equivalent of require.main === module
+// This checks if this file is being run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  startServer().catch(err => {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  });
 }
 
 export default startServer;

@@ -3,7 +3,6 @@ import { promisify } from "util";
 import  listPackages  from "../command/list.js";
 import { AppError } from "../middlewares/e/AppError.js";
 import { ErrorCode } from "../middlewares/e/ErrorCode.js";
-const execPromise = promisify(exec);
 
 interface Package {
   name: string;
