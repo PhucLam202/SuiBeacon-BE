@@ -9,16 +9,17 @@
   outputs = { self, nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs { inherit system; };
+        pkgs = import nixpkgs {
+          inherit system;
+        };
       in {
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             nix # Required for nix search
             nodejs
             nodePackages.pnpm
-            nodePackages.typescript
-            go
-            python311
+            # Thử sử dụng sui từ nixpkgs chính thức (nếu có)
+            # sui
           ];
 
           shellHook = ''

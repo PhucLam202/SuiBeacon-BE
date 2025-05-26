@@ -5,31 +5,6 @@ import ora from "ora";
 
 const execPromise = promisify(exec);
 
-async function removePackage(pkg: string) {
-    const spinner = ora({
-        text: chalk.blue(`Removing ${pkg}...`),
-        spinner: "dots",
-    }).start();
-    
-    try {
-        const installed = await isPackageInstalled(pkg);
-        
-        if (!installed) {
-            spinner.fail(chalk.yellow(`❌ Package ${pkg} is not installed.`));
-            return;
-        }
-        
-        // Use nix profile remove instead of nix-env -e
-        const command = `nix --extra-experimental-features "nix-command flakes" profile remove ${pkg}`;
-        await execPromise(command);
-        
-        spinner.succeed(chalk.green(`✅ Successfully uninstalled ${pkg}`));
-    } catch (err: any) {
-        spinner.fail(chalk.red(`❌ Error: ${err.message}`));
-        console.error(chalk.yellow("Full error details:"), err);
-    }
-}
-
 /**
  * Checks if a package is installed
  * @param pkg Package name to check
@@ -51,6 +26,66 @@ async function isPackageInstalled(pkg: string): Promise<boolean> {
     } catch (error) {
         console.error(chalk.yellow(`Warning: Error checking if ${pkg} is installed`), error);
         return false;
+    }
+}
+
+async function removePackage(pkgInput: string) {
+    // Split input by spaces to handle multiple packages
+    const packages = pkgInput.split(/\s+/);
+    
+    // Create a single spinner for all operations
+    const spinner = ora({
+        spinner: "dots",
+        text: chalk.blue(`Preparing to remove ${packages.length > 1 ? 'packages' : 'package'}...`)
+    }).start();
+    
+    // Track results for summary
+    const results = {
+        success: [] as string[],
+        notInstalled: [] as string[],
+        failed: [] as {pkg: string, error: string}[]
+    };
+    
+    // Process each package
+    for (const pkg of packages) {
+        try {
+            spinner.text = chalk.blue(`Checking if ${pkg} is installed...`);
+            const installed = await isPackageInstalled(pkg);
+            
+            if (!installed) {
+                results.notInstalled.push(pkg);
+                continue;
+            }
+            
+            // Use nix profile remove
+            spinner.text = chalk.blue(`Removing ${pkg}...`);
+            const command = `nix --extra-experimental-features "nix-command flakes" profile remove ${pkg}`;
+            await execPromise(command);
+            
+            results.success.push(pkg);
+        } catch (err: any) {
+            results.failed.push({pkg, error: err.message});
+        }
+    }
+    
+    // Show summary based on results
+    if (results.success.length > 0) {
+        spinner.succeed(chalk.green(`Successfully uninstalled ${results.success.join(', ')}`));
+    } else if (packages.length > 0) {
+        spinner.stop();
+    }
+    
+    // Show not installed packages
+    if (results.notInstalled.length > 0) {
+        console.log(chalk.yellow(`The following packages were not installed: ${results.notInstalled.join(', ')}`));
+    }
+    
+    // Show failed packages
+    if (results.failed.length > 0) {
+        console.log(chalk.red(`Failed to remove the following packages:`));
+        for (const {pkg, error} of results.failed) {
+            console.log(chalk.red(`  - ${pkg}: ${error}`));
+        }
     }
 }
 

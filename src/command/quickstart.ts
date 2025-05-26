@@ -6,7 +6,6 @@ import { quickstarts } from "../types/themeStart.js";
 
 async function installQuickstart(quickstartName: string, spinner: Ora) {
   try {
-    // Kiểm tra xem quickstart có tồn tại không
     if (!quickstarts[quickstartName]) {
       spinner.fail(chalk.red(`Quickstart "${quickstartName}" not found`));
       console.log(chalk.yellow(`Available quickstarts: ${Object.keys(quickstarts).join(", ")}`));
@@ -16,7 +15,6 @@ async function installQuickstart(quickstartName: string, spinner: Ora) {
     const packages = quickstarts[quickstartName];
     spinner.succeed(chalk.green(`Found ${packages.length} packages in "${quickstartName}" quickstart`));
 
-    // Hiển thị danh sách các gói sẽ được cài đặt
     const packageList = packages
       .map(pkg => `${chalk.bold.green(pkg.name)} ${pkg.version !== "latest" ? chalk.blue(`v${pkg.version}`) : ""}`)
       .join("\n");
@@ -30,10 +28,8 @@ async function installQuickstart(quickstartName: string, spinner: Ora) {
       })
     );
 
-    // Hỏi người dùng có muốn tiếp tục không
     console.log(chalk.yellow("Installing packages... (Press Ctrl+C to cancel)"));
 
-    // Cài đặt từng gói
     for (const pkg of packages) {
       const packageSpinner = ora({
         text: chalk.blue(`Installing ${pkg.name}${pkg.version !== "latest" ? ` version ${pkg.version}` : ""}...`),
@@ -41,7 +37,7 @@ async function installQuickstart(quickstartName: string, spinner: Ora) {
       }).start();
 
       try {
-        await installPackage(pkg.name, packageSpinner, pkg.version !== "latest" ? pkg.version : undefined);
+        await installPackage(pkg.name, packageSpinner, pkg.version !== "latest" ? pkg.version : undefined, pkg.flakeUrl);
       } catch (err) {
         packageSpinner.fail(chalk.red(`Failed to install ${pkg.name}`));
         console.error(err);
@@ -49,7 +45,7 @@ async function installQuickstart(quickstartName: string, spinner: Ora) {
     }
 
     console.log(
-      boxen(chalk.green(`✅ Successfully installed "${quickstartName}" development environment`), {
+      boxen(chalk.green(`Successfully installed "${quickstartName}" development environment`), {
         padding: 1,
         margin: 1,
         borderStyle: "round",
@@ -57,7 +53,7 @@ async function installQuickstart(quickstartName: string, spinner: Ora) {
       })
     );
   } catch (err: any) {
-    spinner.fail(chalk.red(`❌ Error: ${err.message}`));
+    spinner.fail(chalk.red(`Error: ${err.message}`));
     console.error(chalk.yellow("Full error details:"), err);
   }
 }

@@ -29,10 +29,10 @@ async function login(userAddress: string, spinner: Ora) {
 
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(credentials, null, 2));
     
-    spinner.succeed(chalk.green(`✅ Successfully logged in as ${userAddress}`));
+    spinner.succeed(chalk.green(`Successfully logged in as ${userAddress}`));
     return true;
   } catch (err: any) {
-    spinner.fail(chalk.red(`❌ Login failed: ${err.message}`));
+    spinner.fail(chalk.red(`Login failed: ${err.message}`));
     console.error(chalk.yellow("Full error details:"), err);
     return false;
   }

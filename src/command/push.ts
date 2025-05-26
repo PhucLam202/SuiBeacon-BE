@@ -27,7 +27,6 @@ async function pushPackageList(projectName: string, spinner: Ora,userAddress:str
     }
     
     // STEP 2: Get installed packages
-    spinner.text = chalk.blue("Fetching installed packages...");
     const packages = await listPackages();
     
     // STEP 3: Check if packages exist
@@ -69,7 +68,6 @@ async function pushPackageList(projectName: string, spinner: Ora,userAddress:str
         createdAt: new Date()
       });
       
-      console.log(chalk.gray("✓ Data saved to DataModel"));
     } catch (dbError: any) {
       console.error("Error saving to DataModel:", dbError);
       // Continue execution even if database save fails
@@ -103,7 +101,7 @@ async function pushPackageList(projectName: string, spinner: Ora,userAddress:str
       await PushHistory.create({
         walletAddress: walletAddress,
         blobId,
-        packageCount: packages.length,
+        packageCoqt: packages.length,
         source: "beacon-cli",
         createdAt: new Date()
       });
@@ -120,7 +118,7 @@ async function pushPackageList(projectName: string, spinner: Ora,userAddress:str
     };
 
     // STEP 10: Display success message
-    spinner.succeed(chalk.green("✅ Package list pushed to hub successfully"));
+    spinner.succeed(chalk.green("Package list pushed to hub successfully"));
     console.log(
       boxen(
         `Project: ${chalk.bold.green(projectName)}\nPushed ${data.payload.packages.length} packages to hub\nBlob ID: ${data.blobId}`,
@@ -153,7 +151,7 @@ async function pushPackageList(projectName: string, spinner: Ora,userAddress:str
     return data;
   } catch (err: any) {
     // STEP 12: Handle errors
-    spinner.fail(chalk.red(`❌ Error: ${err.message}`));
+    spinner.fail(chalk.red(`Error: ${err.message}`));
     console.error(chalk.yellow("Full error details:"), err);
     
     // Ensure database connection is closed even on error

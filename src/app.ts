@@ -32,7 +32,7 @@ app.use(express.urlencoded({ extended: false }));
   });
 
   // Server configuration
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 5000 ;
   server.listen({
     port: Number(port),
     host: "0.0.0.0",

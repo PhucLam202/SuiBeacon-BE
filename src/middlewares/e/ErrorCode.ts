@@ -60,8 +60,13 @@ export enum ErrorCode {
     DB_DUPLICATE_ENTRY = 37006,
     DB_MIGRATION_ERROR = 37007,
     DB_TIMEOUT = 37008,
-    DB_SCHEMA_ERROR = 37009 ,
+    DB_SCHEMA_ERROR = 37009,
   
     GROK_API_ERROR = 38001,
-
-  }
+    
+    // Achievement Errors 39000-39999
+    ACHIEVEMENT_NOT_FOUND = 39001,
+    
+    // Input Validation Errors 40000-40999
+    INVALID_INPUT = 40001,
+}

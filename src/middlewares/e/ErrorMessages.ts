@@ -64,4 +64,10 @@ export const ErrorMessages: { [key in ErrorCode]: string } = {
   [ErrorCode.DB_SCHEMA_ERROR]: "Database schema error",
 
   [ErrorCode.GROK_API_ERROR]: "GROK API error",
+  
+  // Achievement Errors
+  [ErrorCode.ACHIEVEMENT_NOT_FOUND]: "Achievement not found",
+  
+  // Input Validation Errors
+  [ErrorCode.INVALID_INPUT]: "Invalid input data provided",
 };
